@@ -91,7 +91,7 @@ function TaskRow({ task, onMarkDone }: { task: Task; onMarkDone: () => void }) {
       </div>
 
       <div className="mt-3">
-        <form action={async () => { "use server"; }} onSubmit={(e) => {
+        <form onSubmit={(e) => {
           e.preventDefault();
           const body = comment.trim();
           if (!body) return;

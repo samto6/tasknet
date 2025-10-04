@@ -1,5 +1,6 @@
 import { createTeam } from "@/server-actions/teams";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default function DashboardPage() {
   async function createTeamAndGo(form: FormData) {
@@ -14,8 +15,8 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold mb-2">Dashboard</h1>
         <p className="opacity-70">You are signed in.</p>
         <div className="mt-4 space-x-3">
-          <a href="/teams" className="underline">Teams</a>
-          <a href="/wellness" className="underline">Wellness</a>
+          <Link href="/teams" className="underline">Teams</Link>
+          <Link href="/wellness" className="underline">Wellness</Link>
         </div>
       </section>
 

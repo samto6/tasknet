@@ -25,7 +25,9 @@ export async function createTeam(form: FormData) {
     .upsert({
       id: user.id,
       email: user.email ?? null,
-      name: (user as any).user_metadata?.full_name ?? null,
+      name: typeof user.user_metadata === "object" && user.user_metadata && "full_name" in user.user_metadata
+        ? String((user.user_metadata as Record<string, unknown>).full_name ?? "") || null
+        : null,
     });
   // create default prefs if missing (idempotent)
   await supabase

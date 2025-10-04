@@ -44,7 +44,7 @@ export async function middleware(req: NextRequest) {
         remove(name: string, options: CookieOptions) {
           res.headers.append(
             "Set-Cookie",
-            serializeCookie(name, "", { ...options, maxAge: 0, expires: new Date(0) as any })
+            serializeCookie(name, "", { ...options, maxAge: 0, expires: new Date(0) })
           );
         },
       },

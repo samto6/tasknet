@@ -2,6 +2,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import TasksClient from "./";
 import { Suspense } from "react";
 
+export const revalidate = 5; // ISR to keep lists fresh without full SSR on every request
+
 type Search = { page?: string; filter?: "me" | "week" | "milestone"; milestone_id?: string };
 
 export default async function ProjectTasksPage({ params, searchParams }: { params: { projectId: string }, searchParams: Search }) {

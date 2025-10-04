@@ -2,6 +2,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { z } from "zod";
 import { recordEventMaybeAward } from "@/server-actions/gamification";
+import { revalidatePath } from "next/cache";
 
 const Task = z.object({
   project_id: z.string().uuid(),
@@ -25,6 +26,8 @@ export async function createTask(input: TaskInput) {
     .select("id")
     .single();
   if (error) throw error;
+  // Revalidate project tasks listing paths after creation
+  revalidatePath(`/projects/${input.project_id}/tasks`);
   return data!.id as string;
 }
 
@@ -54,6 +57,9 @@ export async function completeTask(taskId: string) {
     team_id: proj?.team_id ?? null,
     payload: { taskId },
   });
+
+  // Revalidate the project's tasks list page
+  if (task?.project_id) revalidatePath(`/projects/${task.project_id}/tasks`);
 }
 
 export async function assignSelf(taskId: string) {
@@ -67,6 +73,8 @@ export async function assignSelf(taskId: string) {
       { onConflict: "task_id,user_id", ignoreDuplicates: true }
     );
   if (error) throw error;
+  // Revalidate possible lists showing assignees state
+  // We don't have the project_id here; lists are still refreshed by client-side transitions.
 }
 
 export async function unassignSelf(taskId: string) {
@@ -79,4 +87,5 @@ export async function unassignSelf(taskId: string) {
     .eq("task_id", taskId)
     .eq("user_id", user.id);
   if (error) throw error;
+  // Revalidate possible lists showing assignees state
 }

@@ -1,10 +1,12 @@
 "use server";
 import { supabaseServer } from "@/lib/supabase/server";
 
+type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
+
 export async function recordEventMaybeAward(args: {
   kind: "checkin" | "task_completed";
   team_id?: string | null;
-  payload?: any;
+  payload?: Json;
 }) {
   const supabase = await supabaseServer();
   const {
@@ -36,8 +38,7 @@ export async function recordEventMaybeAward(args: {
     .eq("user_id", user.id)
     .maybeSingle();
   const within48h = lastEvent
-    ? Date.now() - new Date(lastEvent.created_at as any).getTime() <=
-      48 * 3600 * 1000
+    ? Date.now() - new Date(String(lastEvent.created_at)).getTime() <= 48 * 3600 * 1000
     : true;
 
   if (!st) {
@@ -52,7 +53,7 @@ export async function recordEventMaybeAward(args: {
       });
   } else {
     // only increment once per calendar day
-    const last = new Date(st.updated_at as any);
+  const last = new Date(String(st.updated_at));
     const sameDay = last.toDateString() === new Date().toDateString();
     let current = st.current_days as number;
     let longest = st.longest_days as number;
@@ -79,7 +80,7 @@ export async function recordEventMaybeAward(args: {
     .eq("user_id", user.id)
     .single();
   if (s2) {
-    const days = (s2 as any).current_days as number;
+    const days = Number((s2 as { current_days: number }).current_days);
     if (days >= 7) {
       await supabase
         .from("rewards")
