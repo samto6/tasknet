@@ -1,6 +1,30 @@
+"use client";
 import Image from "next/image";
+import { supabaseBrowser } from "@/lib/supabase/client";
+import { useCallback, useEffect, useState } from "react";
+import { sanitizeSupabaseStorage } from "@/lib/supabase/cleanup";
 
 export default function Home() {
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    sanitizeSupabaseStorage();
+  }, []);
+
+  const signInWithGitHub = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabaseBrowser().auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) console.error("OAuth error:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -26,6 +50,13 @@ export default function Home() {
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <button
+            onClick={signInWithGitHub}
+            disabled={loading}
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center bg-black text-white dark:bg-white dark:text-black hover:opacity-90 font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto"
+          >
+            {loading ? "Redirecting…" : "Sign in with GitHub"}
+          </button>
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"

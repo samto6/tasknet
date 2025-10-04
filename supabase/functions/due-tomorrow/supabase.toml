@@ -1,0 +1,2 @@
+[functions.due-tomorrow]
+verify_jwt = false

@@ -1,0 +1,2 @@
+[functions.streak-rollover]
+verify_jwt = false
