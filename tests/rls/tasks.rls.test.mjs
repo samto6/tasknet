@@ -38,11 +38,18 @@ if (missingEnv.length) {
     if (!userId) throw new Error("Auth user missing id");
 
     const client = createClient(supabaseUrl, anonKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
+      auth: { autoRefreshToken: false, persistSession: true },
     });
     const { data: signedIn, error: signInErr } = await client.auth.signInWithPassword({ email, password });
     if (signInErr) throw new Error(`Failed to sign in user: ${signInErr.message}`);
     if (!signedIn.session) throw new Error("Supabase session missing");
+    await client.auth.setSession({
+      access_token: signedIn.session.access_token,
+      refresh_token: signedIn.session.refresh_token,
+    });
+    const { data: sessionCheck, error: sessionErr } = await client.auth.getSession();
+    if (sessionErr) throw new Error(`Failed to fetch session: ${sessionErr.message}`);
+    if (!sessionCheck.session?.user) throw new Error("Session user missing after setSession");
 
     const profile = {
       id: userId,
@@ -52,7 +59,7 @@ if (missingEnv.length) {
     const { error: profileErr } = await client.from("users").upsert(profile);
     if (profileErr) throw new Error(`Failed to upsert user profile: ${profileErr.message}`);
 
-    return { client, user: signedIn.user }; // user contains id/email
+    return { client, user: signedIn.user, session: signedIn.session }; // user contains id/email
   }
 
   async function provisionTeamWithTask() {
@@ -60,12 +67,20 @@ if (missingEnv.length) {
     const outsider = await createAuthedClient("outsider");
     const inviteCode = randomUUID().replace(/-/g, "").slice(0, 10);
 
-    const { data: team, error: teamErr } = await admin.client
+    const { data: team, error: teamErr } = await serviceClient
       .from("teams")
       .insert({ name: `RLS Team ${Date.now()}`, invite_code: inviteCode })
       .select("id")
       .single();
     if (teamErr) throw new Error(`Team insert failed: ${teamErr.message}`);
+
+    const { error: membershipErr } = await serviceClient
+      .from("memberships")
+      .upsert(
+        { user_id: admin.user.id, team_id: team.id, role: "admin" },
+        { onConflict: "user_id,team_id" }
+      );
+    if (membershipErr) throw new Error(`Membership insert failed: ${membershipErr.message}`);
 
     const { data: project, error: projectErr } = await admin.client
       .from("projects")
@@ -154,5 +169,57 @@ if (missingEnv.length) {
       .select("id")
       .single();
     assert.ok(outsiderUpdate.error, "Non-member should not be able to update tasks");
+  });
+
+  test("Invite code allows a non-member to join via RPC", async (t) => {
+    const admin = await createAuthedClient("admin-invite");
+    const outsider = await createAuthedClient("outsider-invite");
+    const inviteCode = randomUUID().replace(/-/g, "").slice(0, 10);
+
+    const { data: team, error: teamErr } = await serviceClient
+      .from("teams")
+      .insert({ name: `Invite Test Team ${Date.now()}`, invite_code: inviteCode })
+      .select("id")
+      .single();
+    if (teamErr) throw new Error(`Team insert failed: ${teamErr.message}`);
+
+    const { error: membershipErr } = await serviceClient
+      .from("memberships")
+      .upsert(
+        { user_id: admin.user.id, team_id: team.id, role: "admin" },
+        { onConflict: "user_id,team_id" }
+      );
+    if (membershipErr) throw new Error(`Membership insert failed: ${membershipErr.message}`);
+
+    t.after(async () => {
+      await Promise.allSettled([
+        serviceClient.from("memberships").delete().eq("team_id", team?.id),
+        serviceClient.from("teams").delete().eq("id", team?.id),
+      ]);
+      await Promise.allSettled([
+        serviceClient.auth.admin.deleteUser(admin.user.id),
+        serviceClient.auth.admin.deleteUser(outsider.user.id),
+      ]);
+    });
+
+    const { data: invite, error: inviteErr } = await serviceClient
+      .from("team_invites")
+      .select("token, team_id")
+      .eq("team_id", team.id)
+      .single();
+    assert.equal(inviteErr, null);
+    assert.equal(invite.token, inviteCode);
+
+    const { error: joinErr } = await outsider.client.rpc("join_team_by_token", { _token: inviteCode });
+    assert.equal(joinErr, null);
+
+    const { data: joined, error: joinedErr } = await outsider.client
+      .from("memberships")
+      .select("team_id, role")
+      .eq("team_id", team.id)
+      .single();
+    assert.equal(joinedErr, null);
+    assert.equal(joined.team_id, team.id);
+    assert.equal(joined.role, "member");
   });
 }
