@@ -1,13 +1,15 @@
 import { createProjectFromTemplate } from "@/server-actions/projects";
 import { redirect } from "next/navigation";
 
-export default function NewProjectPage({ params }: { params: { teamId: string } }) {
+export default async function NewProjectPage({ params }: { params: Promise<{ teamId: string }> }) {
+  const { teamId } = await params;
+
   async function action(form: FormData) {
     "use server";
     const name = String(form.get("name") || "").trim();
     const start = String(form.get("start") || "").trim();
     if (!name || !start) throw new Error("Missing fields");
-    const projectId = await createProjectFromTemplate({ team_id: params.teamId, name, semester_start_date: start });
+    const projectId = await createProjectFromTemplate({ team_id: teamId, name, semester_start_date: start });
     redirect(`/projects/${projectId}/tasks`);
   }
 

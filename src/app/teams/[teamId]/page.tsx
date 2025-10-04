@@ -1,12 +1,13 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import CopyButton from "./components/CopyButton";
 
-export default async function TeamDetailPage({ params }: { params: { teamId: string } }) {
+export default async function TeamDetailPage({ params }: { params: Promise<{ teamId: string }> }) {
+  const { teamId } = await params;
   const supabase = await supabaseServer();
   const { data: team } = await supabase
     .from("teams")
     .select("id,name,invite_code")
-    .eq("id", params.teamId)
+    .eq("id", teamId)
     .maybeSingle();
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL || "";
@@ -16,7 +17,7 @@ export default async function TeamDetailPage({ params }: { params: { teamId: str
     <main className="mx-auto max-w-2xl p-6 space-y-6">
       <h1 className="text-2xl font-semibold">{team?.name ?? "Team"}</h1>
       <div>
-        <a className="underline" href={`/teams/${params.teamId}/new-project`}>Create project from template</a>
+        <a className="underline" href={`/teams/${teamId}/new-project`}>Create project from template</a>
       </div>
       {team?.invite_code ? (
         <section className="space-y-2">
