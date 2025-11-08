@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
+export async function POST(req: NextRequest) {
+  const res = NextResponse.json({ success: true });
 
-  // Create the redirect response up-front so we can attach cookies to it
-  const redirectUrl = new URL("/dashboard", req.url);
-  const res = NextResponse.redirect(redirectUrl);
-
-  // Serialize cookies manually to avoid Next.js base64 wrapping, which
-  // breaks Supabase's JSON parsing in the browser helper.
+  // Serialize cookies manually to avoid Next.js base64 wrapping
   function serializeCookie(
     name: string,
     value: string,
     options: CookieOptions = {}
   ) {
     const segments: string[] = [];
-    // Encode value to be cookie-safe; Supabase expects to JSON.parse after decode
     const encoded = encodeURIComponent(value);
     segments.push(`${name}=${encoded}`);
     if (options.maxAge !== undefined) segments.push(`Max-Age=${options.maxAge}`);
@@ -27,7 +20,6 @@ export async function GET(req: NextRequest) {
     if (options.domain) segments.push(`Domain=${options.domain}`);
     if (options.sameSite) {
       const ss = typeof options.sameSite === "string" ? options.sameSite : (options.sameSite === true ? "Strict" : "Lax");
-      // Normalize case
       const normalized = ss.charAt(0).toUpperCase() + ss.slice(1).toLowerCase();
       segments.push(`SameSite=${normalized}`);
     }
@@ -65,10 +57,19 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
-  }
+  try {
+    // Attempt to refresh the session
+    const { data, error } = await supabase.auth.refreshSession();
 
-  // Return the redirect response with any Set-Cookie headers
-  return res;
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 401 });
+    }
+
+    return res;
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 });
+  }
 }

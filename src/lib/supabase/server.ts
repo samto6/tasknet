@@ -14,10 +14,18 @@ export async function supabaseServer() {
           return cookieStore.get(name)?.value as string | undefined;
         },
         set(name: string, value: string, opts: CookieOptions) {
-          cookieStore.set({ name, value, ...opts });
+          try {
+            cookieStore.set({ name, value, ...opts });
+          } catch {
+            // Silently fail if cookies cannot be set (e.g., during SSR or middleware)
+          }
         },
         remove(name: string, opts: CookieOptions) {
-          cookieStore.set({ name, value: "", ...opts });
+          try {
+            cookieStore.set({ name, value: "", ...opts });
+          } catch {
+            // Silently fail if cookies cannot be removed
+          }
         },
       },
     }

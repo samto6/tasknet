@@ -39,13 +39,21 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          res.headers.append("Set-Cookie", serializeCookie(name, value, options));
+          try {
+            res.headers.append("Set-Cookie", serializeCookie(name, value, options));
+          } catch {
+            // Silently fail if cookies cannot be set
+          }
         },
         remove(name: string, options: CookieOptions) {
-          res.headers.append(
-            "Set-Cookie",
-            serializeCookie(name, "", { ...options, maxAge: 0, expires: new Date(0) })
-          );
+          try {
+            res.headers.append(
+              "Set-Cookie",
+              serializeCookie(name, "", { ...options, maxAge: 0, expires: new Date(0) })
+            );
+          } catch {
+            // Silently fail if cookies cannot be removed
+          }
         },
       },
     }
