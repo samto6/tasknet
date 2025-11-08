@@ -56,7 +56,7 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession();
   const pathname = req.nextUrl.pathname;
 
-  const protectedPaths = [/^\/dashboard/, /^\/teams/, /^\/projects/, /^\/wellness/, /^\/notifications/];
+  const protectedPaths = [/^\/dashboard/, /^\/teams/, /^\/projects/, /^\/wellness/, /^\/notifications/, /^\/settings/];
   const isProtected = protectedPaths.some((re) => re.test(pathname));
 
   if (isProtected && !session) {
@@ -74,5 +74,6 @@ export const config = {
     "/projects/:path*",
     "/wellness/:path*",
     "/notifications/:path*",
+    "/settings/:path*",
   ],
 };

@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 
 type ToastType = "success" | "error" | "info";
 
@@ -83,6 +83,61 @@ function ToastItem({ toast }: { toast: Toast }) {
       <div className="flex items-center gap-2">
         <span className="text-lg">{icons[toast.type]}</span>
         <span className="font-medium text-sm">{toast.message}</span>
+      </div>
+    </div>
+  );
+}
+
+// Standalone Toast component for use in forms
+export function Toast({
+  message,
+  variant = "success",
+  onClose,
+}: {
+  message: string;
+  variant: "success" | "error";
+  onClose: () => void;
+}) {
+  const styles = {
+    success: "bg-mint-green/20 border-mint-green text-mint-green",
+    error: "bg-dusty-rose/20 border-dusty-rose text-dusty-rose",
+  };
+
+  const icons = {
+    success: "✓",
+    error: "✕",
+  };
+
+  // Auto-close after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 pointer-events-auto">
+      <div
+        className={`
+          px-4 py-3 rounded-[8px]
+          border-2 ${styles[variant]}
+          shadow-[4px_4px_0px_rgba(45,49,66,0.2)]
+          animate-toast-slide-in
+          backdrop-blur-sm
+          min-w-[280px]
+        `}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{icons[variant]}</span>
+            <span className="font-medium text-sm">{message}</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-lg hover:opacity-70 transition-opacity"
+          >
+            ×
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -30,8 +30,8 @@ export default function TasksClient({ tasks, page, pageSize }: { projectId: stri
   });
 
   async function markDone(id: string) {
-    mutate({ id, type: "done" });
     startTransition(async () => {
+      mutate({ id, type: "done" });
       await completeTask(id);
     });
   }

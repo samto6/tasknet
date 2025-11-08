@@ -34,10 +34,22 @@ export default async function Navigation() {
                 Teams
               </Link>
               <Link
+                href="/timeline"
+                className="text-sm font-medium text-muted hover:text-foreground transition-colors"
+              >
+                Timeline
+              </Link>
+              <Link
                 href="/wellness"
                 className="text-sm font-medium text-muted hover:text-foreground transition-colors"
               >
                 Wellness
+              </Link>
+              <Link
+                href="/settings"
+                className="text-sm font-medium text-muted hover:text-foreground transition-colors"
+              >
+                Settings
               </Link>
 
               {/* User Menu */}

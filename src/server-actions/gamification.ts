@@ -100,3 +100,49 @@ export async function recordEventMaybeAward(args: {
   }
   // on_time_10 and milestone_maker are awarded elsewhere (e.g., after batch checks)
 }
+
+/**
+ * Get the current user's streak information
+ */
+export async function getUserStreak() {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthenticated");
+
+  const { data: streak } = await supabase
+    .from("streaks")
+    .select("current_days, longest_days, updated_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!streak) {
+    return { current_days: 0, longest_days: 0, updated_at: null };
+  }
+
+  return {
+    current_days: Number(streak.current_days),
+    longest_days: Number(streak.longest_days),
+    updated_at: streak.updated_at,
+  };
+}
+
+/**
+ * Get the current user's unlocked badges
+ */
+export async function getUserBadges() {
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthenticated");
+
+  const { data: badges } = await supabase
+    .from("rewards")
+    .select("kind, awarded_at")
+    .eq("user_id", user.id)
+    .order("awarded_at", { ascending: false });
+
+  return badges || [];
+}

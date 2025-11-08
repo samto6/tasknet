@@ -13,17 +13,49 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
     .eq("id", teamId)
     .maybeSingle();
 
+  // Fetch projects for this team
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("id, name, created_at")
+    .eq("team_id", teamId)
+    .order("created_at", { ascending: false });
+
   const origin = process.env.NEXT_PUBLIC_SITE_URL || "";
   const inviteUrl = team?.invite_code ? `${origin}/join?code=${encodeURIComponent(team.invite_code)}` : "";
 
   return (
     <main className="min-h-screen p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="heading-1 mb-2">{team?.name ?? "Team"}</h1>
           <p className="text-muted">Manage your team and invite members</p>
         </div>
+
+        {/* Projects Section */}
+        {projects && projects.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Projects</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {projects.map((project) => (
+                <Link key={project.id} href={`/projects/${project.id}/tasks`}>
+                  <Card className="h-full hover:border-primary/50 transition-all cursor-pointer">
+                    <CardTitle className="text-lg mb-3">{project.name}</CardTitle>
+                    <div className="text-sm text-muted">
+                      <div className="flex items-center gap-2">
+                        <span>📅</span>
+                        <span>
+                          Created{" "}
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quick Actions */}
@@ -34,6 +66,12 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
                 <Button variant="secondary" className="w-full">
                   <span className="mr-2">➕</span>
                   Create Project from Template
+                </Button>
+              </Link>
+              <Link href={`/teams/${teamId}/members`}>
+                <Button variant="secondary" className="w-full">
+                  <span className="mr-2">👥</span>
+                  View Team Members
                 </Button>
               </Link>
             </div>
