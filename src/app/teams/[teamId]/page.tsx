@@ -20,7 +20,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
     .eq("team_id", teamId)
     .order("created_at", { ascending: false });
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const origin = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
   const inviteUrl = team?.invite_code ? `${origin}/join?code=${encodeURIComponent(team.invite_code)}` : "";
 
   return (
