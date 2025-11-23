@@ -43,6 +43,7 @@ function AuthCallbackContent() {
       // Check if already authenticated (e.g., via auto-detection from hash fragment)
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        router.refresh();
         router.push("/dashboard");
         return;
       }
@@ -76,6 +77,7 @@ function AuthCallbackContent() {
         return;
       }
 
+      router.refresh();
       router.push("/dashboard");
     } catch (err) {
       console.error("[Auth Callback] Unexpected error:", err);
