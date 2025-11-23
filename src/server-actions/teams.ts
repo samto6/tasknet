@@ -54,8 +54,30 @@ export async function joinTeamByCode(code: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthenticated");
+
+  // Ensure the profile row exists before joining (memberships references users)
+  const { error: profileErr } = await supabase
+    .from("users")
+    .upsert({
+      id: user.id,
+      email: user.email ?? null,
+      name: typeof user.user_metadata === "object" && user.user_metadata && "full_name" in user.user_metadata
+        ? String((user.user_metadata as Record<string, unknown>).full_name ?? "") || null
+        : null,
+    });
+  if (profileErr) throw profileErr;
+
   const { error } = await supabase.rpc("join_team_by_token", { _token: code });
   if (error) throw error;
+
+  // Create default prefs if missing (idempotent)
+  const { error: prefsErr } = await supabase
+    .from("user_prefs")
+    .upsert(
+      { user_id: user.id },
+      { onConflict: "user_id", ignoreDuplicates: true }
+    );
+  if (prefsErr) throw prefsErr;
 }
 
 /**
