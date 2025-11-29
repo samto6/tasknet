@@ -63,7 +63,7 @@ export default function MobileMenu({ user }: MobileMenuProps) {
           <div className="flex items-center justify-between p-6 border-b-2 border-border">
             <div className="text-xl font-bold">
               <span className="text-sage-green">Task</span>
-              <span className="text-foreground">Nest</span>
+              <span className="text-foreground">Net</span>
             </div>
             <button
               onClick={closeMenu}

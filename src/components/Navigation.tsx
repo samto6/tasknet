@@ -15,7 +15,7 @@ export default async function Navigation() {
           <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
             <div className="text-2xl font-bold tracking-tight">
               <span className="text-sage-green">Task</span>
-              <span className="text-foreground">Nest</span>
+              <span className="text-foreground">Net</span>
             </div>
           </Link>
 

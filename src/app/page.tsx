@@ -29,7 +29,7 @@ export default function Home() {
               TaskNet
             </h1>
             <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-8">
-              Plan semester-long projects with confidence. Timeline tracking, task management, and team wellness—built for student groups.
+              Plan semester-long projects with confidence. Timeline tracking, task management, and team wellness -- this is a task management platform built by students, for students.
             </p>
             <Button
               size="lg"
@@ -112,7 +112,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t-2 border-border py-8 px-6">
         <div className="max-w-7xl mx-auto text-center text-sm text-muted">
-          <p>Built for student teams. Not a mental-health service — just a tool to help you stay organized.</p>
+          <p>© 2025 TaskNet. All rights reserved.</p>
         </div>
       </footer>
     </div>
