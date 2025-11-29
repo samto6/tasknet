@@ -45,7 +45,7 @@ export default async function WellnessPage() {
                 <div>
                   <CardTitle className="mb-2 text-base">Not a Mental Health Service</CardTitle>
                   <p className="text-sm text-muted">
-                    TaskNest is a productivity tool, not a mental health service. If you&apos;re struggling,
+                    TaskNet is a productivity tool, not a mental health service. If you&apos;re struggling,
                     please reach out to campus counseling or call a crisis helpline.
                   </p>
                 </div>

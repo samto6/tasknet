@@ -6,6 +6,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Toast } from "@/components/ui/Toast";
+import ReminderModal from "@/components/ReminderModal";
 import { useRouter } from "next/navigation";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -22,15 +23,17 @@ interface Milestone {
 interface MilestoneRowProps {
   milestone: Milestone;
   isAdmin: boolean;
+  projectId: string;
 }
 
-export default function MilestoneRow({ milestone, isAdmin }: MilestoneRowProps) {
+export default function MilestoneRow({ milestone, isAdmin, projectId }: MilestoneRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(milestone.title);
   const [dueAt, setDueAt] = useState(
     milestone.due_at ? format(new Date(milestone.due_at), "yyyy-MM-dd") : ""
   );
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{
     message: string;
@@ -162,6 +165,14 @@ export default function MilestoneRow({ milestone, isAdmin }: MilestoneRowProps) 
                   <Button
                     variant="secondary"
                     className="text-sm"
+                    onClick={() => setShowReminderModal(true)}
+                    disabled={isPending}
+                  >
+                    Remind
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="text-sm"
                     onClick={handleToggleStatus}
                     disabled={isPending}
                   >
@@ -239,6 +250,15 @@ export default function MilestoneRow({ milestone, isAdmin }: MilestoneRowProps) 
           onClose={() => setToast(null)}
         />
       )}
+
+      <ReminderModal
+        isOpen={showReminderModal}
+        onClose={() => setShowReminderModal(false)}
+        entityType="milestone"
+        entityId={milestone.id}
+        entityTitle={milestone.title}
+        projectId={projectId}
+      />
     </>
   );
 }

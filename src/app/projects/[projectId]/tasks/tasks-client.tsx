@@ -4,6 +4,7 @@ import { completeTask, assignSelf, unassignSelf } from "@/server-actions/tasks";
 import { addComment } from "@/server-actions/comments";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import ReminderModal from "@/components/ReminderModal";
 
 type Task = {
   id: string;
@@ -20,7 +21,7 @@ const statusColors = {
   done: { border: "mint-green", badge: "success" },
 };
 
-export default function TasksClient({ tasks, page, pageSize }: { projectId: string; tasks: Task[]; page: number; pageSize: number; }) {
+export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin }: { projectId: string; tasks: Task[]; page: number; pageSize: number; isAdmin: boolean; }) {
   const [, startTransition] = useTransition();
   const [optimisticTasks, mutate] = useOptimistic(tasks, (prev, action: { id: string; type: "done" }) => {
     if (action.type === "done") {
@@ -46,7 +47,7 @@ export default function TasksClient({ tasks, page, pageSize }: { projectId: stri
         </div>
       ) : (
         optimisticTasks.map((t) => (
-          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} />
+          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} projectId={projectId} isAdmin={isAdmin} />
         ))
       )}
 
@@ -69,10 +70,11 @@ export default function TasksClient({ tasks, page, pageSize }: { projectId: stri
   );
 }
 
-function TaskRow({ task, onMarkDone }: { task: Task; onMarkDone: () => void }) {
+function TaskRow({ task, onMarkDone, projectId, isAdmin }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; }) {
   const [comment, setComment] = useState("");
   const [sending, startTransition] = useTransition();
   const [mine, setMine] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
 
   const due = task.due_at ? new Date(task.due_at) : null;
   const overdue = due && due.getTime() < Date.now() && task.status !== "done";
@@ -126,6 +128,15 @@ function TaskRow({ task, onMarkDone }: { task: Task; onMarkDone: () => void }) {
           {task.status !== "done" && (
             <Button onClick={onMarkDone} size="sm" variant="primary">
               ✓ Done
+            </Button>
+          )}
+          {isAdmin && (
+            <Button
+              onClick={() => setShowReminderModal(true)}
+              size="sm"
+              variant="secondary"
+            >
+              Remind
             </Button>
           )}
           {!mine ? (
@@ -184,6 +195,15 @@ function TaskRow({ task, onMarkDone }: { task: Task; onMarkDone: () => void }) {
           </Button>
         </div>
       </form>
+
+      <ReminderModal
+        isOpen={showReminderModal}
+        onClose={() => setShowReminderModal(false)}
+        entityType="task"
+        entityId={task.id}
+        entityTitle={task.title}
+        projectId={projectId}
+      />
     </div>
   );
 }

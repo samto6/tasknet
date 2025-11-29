@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tasknest-v1';
-const RUNTIME_CACHE = 'tasknest-runtime-v1';
+const CACHE_NAME = 'tasknet-v1';
+const RUNTIME_CACHE = 'tasknet-runtime-v1';
 
 // Assets to cache on install
 const PRECACHE_URLS = [

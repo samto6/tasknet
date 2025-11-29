@@ -124,7 +124,7 @@ function AuthCallbackContent() {
           Confirm Your Login
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Click the button below to complete your sign-in to TaskNest.
+          Click the button below to complete your sign-in to TaskNet.
         </p>
         <button
           onClick={handleConfirm}

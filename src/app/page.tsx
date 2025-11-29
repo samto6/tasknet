@@ -26,7 +26,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h1 className="heading-display mb-6">
-              TaskNest
+              TaskNet
             </h1>
             <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-8">
               Plan semester-long projects with confidence. Timeline tracking, task management, and team wellness—built for student groups.

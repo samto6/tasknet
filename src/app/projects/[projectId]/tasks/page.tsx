@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import FilterBar from "./FilterBar";
+import BulkReminderButton from "./BulkReminderButton";
 
 export const revalidate = 5; // ISR to keep lists fresh without full SSR on every request
 
@@ -117,6 +118,18 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
     .eq("id", projectId)
     .maybeSingle();
 
+  // Check if user is admin
+  let isAdmin = false;
+  if (project?.team_id && user) {
+    const { data: membership } = await supabase
+      .from("memberships")
+      .select("role")
+      .eq("team_id", project.team_id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    isAdmin = membership?.role === "admin";
+  }
+
   // Fetch milestones for filtering
   const { data: milestones } = await supabase
     .from("milestones")
@@ -155,6 +168,9 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
               Create Task
             </Button>
           </Link>
+          {isAdmin && (
+            <BulkReminderButton projectId={projectId} />
+          )}
           <Link href={`/projects/${projectId}/milestones`}>
             <Button variant="secondary" size="sm">
               <span className="mr-2">🎯</span>
@@ -181,6 +197,7 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
           tasks={tasks ?? []}
           page={page}
           pageSize={pageSize}
+          isAdmin={isAdmin}
         />
       </Suspense>
     </main>

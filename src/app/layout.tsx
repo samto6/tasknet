@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TaskNest",
+  title: "TaskNet",
   description: "Tidy teamwork: projects, tasks, and wellness in one place.",
   manifest: "/manifest.webmanifest",
 };
@@ -40,10 +40,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#84A98C" />
 
         {/* PWA Meta Tags */}
-        <meta name="application-name" content="TaskNest" />
+        <meta name="application-name" content="TaskNet" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="TaskNest" />
+        <meta name="apple-mobile-web-app-title" content="TaskNet" />
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 

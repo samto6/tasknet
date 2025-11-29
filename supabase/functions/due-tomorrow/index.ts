@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 const site = Deno.env.get("SITE_URL")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "TaskNest <noreply@tasknest.app>";
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "TaskNet <noreply@tasknet.app>";
 
 Deno.serve(async () => {
   const now = new Date();

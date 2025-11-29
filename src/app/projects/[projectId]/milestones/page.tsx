@@ -131,6 +131,7 @@ export default async function MilestonesPage({
                       key={milestone.id}
                       milestone={milestone}
                       isAdmin={isAdmin}
+                      projectId={projectId}
                     />
                   ))}
                 </div>

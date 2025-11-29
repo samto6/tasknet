@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 const site = Deno.env.get("SITE_URL")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "TaskNest <noreply@tasknest.app>";
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "TaskNet <noreply@tasknet.app>";
 
 Deno.serve(async () => {
   // Gather a simple weekly digest: tasks completed in the last 7 days per user
@@ -56,7 +56,7 @@ Deno.serve(async () => {
       const html = `<h2>Your week at a glance</h2>
         <p><b>${completed}</b> tasks completed</p>
         <p><b>${checkins}</b> check-ins</p>
-        <p><a href="${site}/dashboard">Open TaskNest</a></p>`;
+        <p><a href="${site}/dashboard">Open TaskNet</a></p>`;
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },

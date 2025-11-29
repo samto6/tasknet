@@ -1,6 +1,6 @@
 {
-  "name": "TaskNest",
-  "short_name": "TaskNest",
+  "name": "TaskNet",
+  "short_name": "TaskNet",
   "description": "Tidy teamwork: projects, tasks, and wellness in one place",
   "start_url": "/",
   "display": "standalone",

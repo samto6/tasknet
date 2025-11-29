@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
             <span className="text-sage-green">Task</span>
-            <span className="text-foreground">Nest</span>
+            <span className="text-foreground">Net</span>
           </h1>
           <p className="text-muted">Tidy teamwork in one place</p>
         </div>
@@ -90,7 +90,7 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={sendLink} className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-2">Sign in to TaskNest</h2>
+                <h2 className="text-xl font-semibold mb-2">Sign in to TaskNet</h2>
                 <p className="text-sm text-muted">
                   Enter your email to receive a magic link
                 </p>
