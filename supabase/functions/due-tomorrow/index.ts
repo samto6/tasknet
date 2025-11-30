@@ -1,6 +1,30 @@
 // deno-lint-ignore-file
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Type definitions for edge function
+interface TaskAssignee {
+  user_id: string;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  due_at: string;
+  project_id: string;
+  task_assignees: TaskAssignee[] | null;
+  projects: { team_id: string } | null;
+}
+
+interface User {
+  id: string;
+  email: string;
+}
+
+interface UserPref {
+  user_id: string;
+  email_due: boolean;
+}
+
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -29,8 +53,8 @@ Deno.serve(async () => {
 
   if (error) return new Response(error.message, { status: 500 });
 
-  const assignees = (tasks ?? []).flatMap((t: any) =>
-    t.task_assignees?.map((a: any) => ({ task: t, user_id: a.user_id })) ?? []
+  const assignees = ((tasks ?? []) as Task[]).flatMap((t) =>
+    t.task_assignees?.map((a) => ({ task: t, user_id: a.user_id })) ?? []
   );
   if (!assignees.length) return new Response("ok");
 
@@ -43,14 +67,14 @@ Deno.serve(async () => {
   const { data: prefs } = await supabase
     .from("user_prefs")
     .select("user_id,email_due")
-    .in("user_id", userIds);
+    .in("id", userIds);
 
   // send notifications
   for (const a of assignees) {
-    const email = users?.find((u: any) => u.id === a.user_id)?.email as
+    const email = (users as User[] | null)?.find((u) => u.id === a.user_id)?.email as
       | string
       | undefined;
-    const ok = prefs?.find((p: any) => p.user_id === a.user_id)?.email_due as
+    const ok = (prefs as UserPref[] | null)?.find((p) => p.user_id === a.user_id)?.email_due as
       | boolean
       | undefined;
     await supabase.from("notifications").insert({

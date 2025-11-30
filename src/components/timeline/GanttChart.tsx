@@ -271,7 +271,7 @@ export default function GanttChart({ tasks, milestones, onTaskClick }: Props) {
               <div className="flex-1 relative min-h-[80px] py-4">
                 {/* Vertical gridlines */}
                 <div className="absolute inset-0 flex">
-                  {weeks.map((week, index) => (
+                  {weeks.map((week, _index) => (
                     <div
                       key={week.toISOString()}
                       className="flex-1 border-r border-border/30 last:border-r-0"

@@ -24,6 +24,8 @@ const isFilter = (value?: string): value is "me" | "week" | "milestone" | "overd
   value === "me" || value === "week" || value === "milestone" || value === "overdue" || value === "all";
 
 export default async function ProjectTasksPage({ params, searchParams }: { params: Promise<{ projectId: string }>; searchParams: Promise<Search> }) {
+  // eslint-disable-next-line react-hooks/purity
+  const serverTime = Date.now();
   const [{ projectId }, rawSearch] = await Promise.all([params, searchParams]);
 
   const pageParam = toSingleValue(rawSearch.page);
@@ -200,6 +202,7 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
           pageSize={pageSize}
           isAdmin={isAdmin}
           teamMembers={teamMembers}
+          serverTime={serverTime}
         />
       </Suspense>
     </main>

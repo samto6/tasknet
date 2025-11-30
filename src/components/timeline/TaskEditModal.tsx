@@ -28,8 +28,6 @@ type Props = {
 };
 
 export default function TaskEditModal({ taskId, onClose, onUpdate }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -42,13 +40,13 @@ export default function TaskEditModal({ taskId, onClose, onUpdate }: Props) {
   const [size, setSize] = useState<string>("");
   const [milestoneId, setMilestoneId] = useState<string>("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [fetchedTaskId, setFetchedTaskId] = useState<string | null>(null);
+
+  // Derive loading state from whether we're waiting for task data
+  const loading = taskId !== null && fetchedTaskId !== taskId;
 
   useEffect(() => {
-    setIsOpen(taskId !== null);
-    if (taskId) {
-      setLoading(true);
-      setError(null);
-      
+    if (taskId && taskId !== fetchedTaskId) {
       // Fetch task data
       getTask(taskId)
         .then((data) => {
@@ -65,20 +63,19 @@ export default function TaskEditModal({ taskId, onClose, onUpdate }: Props) {
         })
         .then((milestonesData) => {
           setMilestones(milestonesData.map((m) => ({ id: m.id, title: m.title })));
-          setLoading(false);
+          setFetchedTaskId(taskId);
         })
         .catch((err) => {
           setError(err.message || "Failed to load task");
-          setLoading(false);
+          setFetchedTaskId(taskId); // Mark as fetched even on error
         });
     }
-  }, [taskId]);
+  }, [taskId, fetchedTaskId]);
 
-  if (!isOpen || !taskId) return null;
+  if (!taskId) return null;
 
   const handleClose = () => {
-    setIsOpen(false);
-    setTimeout(onClose, 200);
+    onClose();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

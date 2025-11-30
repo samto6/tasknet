@@ -126,7 +126,7 @@ export function getNotificationLink(notification: Notification): string {
     }
 
     case "mention": {
-      const taskId = payload.taskId;
+      const _taskId = payload.taskId;
       const projectId = payload.projectId;
       if (projectId) {
         return `/projects/${projectId}/tasks`;

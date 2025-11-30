@@ -45,6 +45,7 @@ export default function ReminderModal({
     if (isOpen) {
       loadRecipients();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, entityId, projectId]);
 
   async function loadRecipients() {

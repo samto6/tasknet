@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
@@ -8,7 +8,7 @@ function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
   // Support both PKCE flow (code) and token hash flow
   const code = searchParams.get("code");
@@ -17,25 +17,25 @@ function AuthCallbackContent() {
   const errorParam = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  useEffect(() => {
-    // Check for error params from Supabase redirect
+  // Derive initial error from URL params (no useEffect needed)
+  const initialError = useMemo(() => {
     if (errorParam) {
-      const message = errorDescription
+      return errorDescription
         ? decodeURIComponent(errorDescription.replace(/\+/g, ' '))
         : "Authentication failed";
-      setError(message);
-      return;
     }
-
-    // Check for either PKCE code or token_hash
     if (!code && (!token_hash || !type)) {
-      setError("Invalid or missing authentication token");
+      return "Invalid or missing authentication token";
     }
+    return null;
   }, [code, token_hash, type, errorParam, errorDescription]);
+
+  // Use runtime error if set, otherwise use initial error
+  const error = runtimeError ?? initialError;
 
   const handleConfirm = async () => {
     setIsLoading(true);
-    setError(null);
+    setRuntimeError(null);
 
     try {
       const supabase = supabaseBrowser();
@@ -57,7 +57,7 @@ function AuthCallbackContent() {
 
         if (authError) {
           console.error("[Auth Callback] Token verification failed:", authError.message);
-          setError(authError.message || "Authentication failed");
+          setRuntimeError(authError.message || "Authentication failed");
           setIsLoading(false);
           return;
         }
@@ -67,12 +67,12 @@ function AuthCallbackContent() {
 
         if (authError) {
           console.error("[Auth Callback] Code exchange failed:", authError.message);
-          setError(authError.message || "Authentication failed");
+          setRuntimeError(authError.message || "Authentication failed");
           setIsLoading(false);
           return;
         }
       } else {
-        setError("Invalid or missing authentication token");
+        setRuntimeError("Invalid or missing authentication token");
         setIsLoading(false);
         return;
       }
@@ -81,7 +81,7 @@ function AuthCallbackContent() {
       router.push("/dashboard");
     } catch (err) {
       console.error("[Auth Callback] Unexpected error:", err);
-      setError("An unexpected error occurred");
+      setRuntimeError("An unexpected error occurred");
       setIsLoading(false);
     }
   };

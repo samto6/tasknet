@@ -1,6 +1,24 @@
 // deno-lint-ignore-file
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Type definitions for edge function
+interface Event {
+  user_id: string;
+  kind: string;
+  created_at: string;
+  payload_json: Record<string, unknown>;
+}
+
+interface User {
+  id: string;
+  email: string;
+}
+
+interface UserPref {
+  user_id: string;
+  email_digest: boolean;
+}
+
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -20,8 +38,8 @@ Deno.serve(async () => {
     .gte("created_at", since.toISOString());
   if (error) return new Response(error.message, { status: 500 });
 
-  const byUser: Record<string, any[]> = {};
-  for (const e of recentEvents ?? []) {
+  const byUser: Record<string, Event[]> = {};
+  for (const e of (recentEvents ?? []) as Event[]) {
     if (!byUser[e.user_id]) byUser[e.user_id] = [];
     byUser[e.user_id].push(e);
   }
@@ -39,8 +57,8 @@ Deno.serve(async () => {
     .in("user_id", userIds);
 
   for (const uid of userIds) {
-    const email = users?.find((u: any) => u.id === uid)?.email as string | undefined;
-    const ok = prefs?.find((p: any) => p.user_id === uid)?.email_digest as boolean | undefined;
+    const email = (users as User[] | null)?.find((u) => u.id === uid)?.email as string | undefined;
+    const ok = (prefs as UserPref[] | null)?.find((p) => p.user_id === uid)?.email_digest as boolean | undefined;
     const list = byUser[uid];
 
     // notification record

@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createClient } from "@supabase/supabase-js";
-import { randomUUID } from "node:crypto";
 
 const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -78,7 +77,7 @@ if (missingEnv.length) {
     assert.equal(checkin1.mood, 4);
 
     // User2 creates a check-in
-    const { data: checkin2, error: err2 } = await user2.client
+    const { data: _checkin2, error: err2 } = await user2.client
       .from("checkins")
       .insert({ user_id: user2.user.id, mood: 3, note_private: "Okay day" })
       .select("id, mood")

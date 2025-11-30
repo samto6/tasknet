@@ -156,7 +156,7 @@ if (missingEnv.length) {
       .insert({ task_id: ctx.taskId, user_id: ctx.admin.user.id, body: "Secret comment" });
 
     // Outsider cannot read comments
-    const { data: readData, error: readErr } = await ctx.outsider.client
+    const { data: readData, error: _readErr } = await ctx.outsider.client
       .from("task_comments")
       .select("id, body")
       .eq("task_id", ctx.taskId);

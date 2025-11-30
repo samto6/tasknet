@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 const COLORS = [
   "#84A98C", // sage green
@@ -27,19 +27,22 @@ export function useConfetti() {
   return { celebrate, show };
 }
 
-export function ConfettiCanvas({ show }: { show: boolean }) {
-  const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
+// Seeded random for deterministic results
+function seededRandom(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
 
-  useEffect(() => {
-    if (show) {
-      const newPieces = Array.from({ length: 50 }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        delay: Math.random() * 0.5,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      }));
-      setPieces(newPieces);
-    }
+export function ConfettiCanvas({ show }: { show: boolean }) {
+  // Generate pieces deterministically based on a fixed seed
+  const pieces = useMemo<ConfettiPiece[]>(() => {
+    if (!show) return [];
+    return Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: seededRandom(i * 1.1) * 100,
+      delay: seededRandom(i * 2.2) * 0.5,
+      color: COLORS[Math.floor(seededRandom(i * 3.3) * COLORS.length)],
+    }));
   }, [show]);
 
   if (!show) return null;

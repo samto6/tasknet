@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const _siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   // Get tasks due tomorrow
   const now = new Date();

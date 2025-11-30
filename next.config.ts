@@ -1,9 +1,11 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
+import bundleAnalyzer from "@next/bundle-analyzer";
+import type { NextConfig } from "next";
+
+const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-const config = withBundleAnalyzer({
+const config: NextConfig = withBundleAnalyzer({
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
@@ -24,7 +26,7 @@ const config = withBundleAnalyzer({
   compress: true,
   // Optimize packages
   transpilePackages: ["@supabase/ssr"],
-  webpack: (config: any, { isServer }: { isServer: boolean }) => {
+  webpack: (config, { isServer }) => {
     if (isServer) {
       // Suppress warnings about Node.js APIs in Edge Runtime for Supabase
       config.ignoreWarnings = [
@@ -35,4 +37,4 @@ const config = withBundleAnalyzer({
   },
 });
 
-module.exports = config;
+export default config;

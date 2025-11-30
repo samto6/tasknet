@@ -56,6 +56,7 @@ export default function BulkReminderModal({
     if (isOpen) {
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, projectId]);
 
   async function loadData() {

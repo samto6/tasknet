@@ -16,6 +16,7 @@ const TaskSchema = z.object({
 
 export type TaskInput = z.infer<typeof TaskSchema>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TaskUpdateSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional().nullable(),

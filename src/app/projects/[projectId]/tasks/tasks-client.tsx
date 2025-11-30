@@ -29,7 +29,7 @@ const statusColors = {
   done: { border: "mint-green", badge: "success" },
 };
 
-export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin, teamMembers = [] }: { projectId: string; tasks: Task[]; page: number; pageSize: number; isAdmin: boolean; teamMembers?: TeamMember[]; }) {
+export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin, teamMembers = [], serverTime }: { projectId: string; tasks: Task[]; page: number; pageSize: number; isAdmin: boolean; teamMembers?: TeamMember[]; serverTime: number; }) {
   const [, startTransition] = useTransition();
   const [optimisticTasks, mutate] = useOptimistic(tasks, (prev, action: { id: string; type: "done" }) => {
     if (action.type === "done") {
@@ -55,7 +55,7 @@ export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin,
         </div>
       ) : (
         optimisticTasks.map((t) => (
-          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} projectId={projectId} isAdmin={isAdmin} teamMembers={teamMembers} />
+          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} projectId={projectId} isAdmin={isAdmin} teamMembers={teamMembers} serverTime={serverTime} />
         ))
       )}
 
@@ -78,7 +78,7 @@ export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin,
   );
 }
 
-function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; teamMembers: TeamMember[]; }) {
+function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers, serverTime }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; teamMembers: TeamMember[]; serverTime: number; }) {
   const router = useRouter();
   const [comment, setComment] = useState("");
   const [sending, startTransition] = useTransition();
@@ -112,7 +112,7 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
   }, [showAssignDropdown]);
 
   const due = task.due_at ? new Date(task.due_at) : null;
-  const overdue = due && due.getTime() < Date.now() && task.status !== "done";
+  const overdue = due && due.getTime() < serverTime && task.status !== "done";
 
   const statusColor = statusColors[task.status as keyof typeof statusColors] || statusColors.todo;
 

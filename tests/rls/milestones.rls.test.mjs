@@ -187,7 +187,7 @@ if (missingEnv.length) {
     assert.equal(updated.status, "done");
 
     // Member cannot update
-    const { error: memberErr } = await ctx.member.client
+    const { error: _memberErr } = await ctx.member.client
       .from("milestones")
       .update({ title: "Hacked" })
       .eq("id", milestone.id);
