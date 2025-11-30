@@ -72,3 +72,41 @@ export async function addComment(taskId: string, body: string) {
     }
   }
 }
+
+/**
+ * Get comments for a task
+ */
+export async function getComments(taskId: string) {
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
+  if (!user) throw new Error("Unauthenticated");
+
+  const { data: comments, error } = await supabase
+    .from("task_comments")
+    .select(`
+      id,
+      body,
+      created_at,
+      user_id,
+      users:user_id (
+        name,
+        email
+      )
+    `)
+    .eq("task_id", taskId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  return (comments || []).map((c) => ({
+    id: c.id as string,
+    body: c.body as string,
+    createdAt: c.created_at as string,
+    userId: c.user_id as string,
+    authorName: (c.users as { name: string | null; email: string | null } | null)?.name 
+      || (c.users as { name: string | null; email: string | null } | null)?.email?.split("@")[0] 
+      || "Unknown",
+  }));
+}

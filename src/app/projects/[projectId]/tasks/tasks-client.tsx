@@ -2,7 +2,7 @@
 import { useOptimistic, useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { completeTask, assignSelf, unassignSelf, assignUser, deleteTask } from "@/server-actions/tasks";
-import { addComment } from "@/server-actions/comments";
+import { addComment, getComments } from "@/server-actions/comments";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import ReminderModal from "@/components/ReminderModal";
@@ -87,7 +87,16 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [comments, setComments] = useState<{ id: string; body: string; createdAt: string; userId: string; authorName: string }[]>([]);
+  const [showComments, setShowComments] = useState(false);
   const assignDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch comments when expanded
+  useEffect(() => {
+    if (showComments) {
+      getComments(task.id).then(setComments).catch(console.error);
+    }
+  }, [showComments, task.id]);
 
   // Close assign dropdown when clicking outside
   useEffect(() => {
@@ -253,32 +262,65 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
         </div>
       </div>
 
-      {/* Comment Input */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const body = comment.trim();
-          if (!body) return;
-          startTransition(async () => {
-            await addComment(task.id, body);
-            setComment("");
-          });
-        }}
-        className="mt-4 pt-4 border-t-2 border-border"
-      >
-        <div className="flex gap-2">
-          <input
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="flex-1 px-3 py-2 bg-background border-2 border-border rounded-[6px] text-sm placeholder:text-muted focus:border-sage-green focus:outline-none"
-            placeholder="Add a comment… mention with @email"
-            disabled={sending}
-          />
-          <Button type="submit" size="sm" disabled={!comment.trim() || sending}>
-            {sending ? "..." : "Comment"}
-          </Button>
-        </div>
-      </form>
+      {/* Comments Section */}
+      <div className="mt-4 pt-4 border-t-2 border-border">
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="text-sm text-muted hover:text-foreground transition-colors mb-3 flex items-center gap-1"
+        >
+          {showComments ? "▼" : "▶"} Comments {comments.length > 0 && `(${comments.length})`}
+        </button>
+
+        {showComments && (
+          <>
+            {/* Existing Comments */}
+            {comments.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {comments.map((c) => (
+                  <div key={c.id} className="bg-background rounded-[6px] p-3 border border-border">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">{c.authorName}</span>
+                      <span className="text-xs text-muted">
+                        {new Date(c.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted whitespace-pre-wrap">{c.body}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Comment Input */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const body = comment.trim();
+                if (!body) return;
+                startTransition(async () => {
+                  await addComment(task.id, body);
+                  setComment("");
+                  // Refresh comments
+                  const updated = await getComments(task.id);
+                  setComments(updated);
+                });
+              }}
+            >
+              <div className="flex gap-2">
+                <input
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-background border-2 border-border rounded-[6px] text-sm placeholder:text-muted focus:border-sage-green focus:outline-none"
+                  placeholder="Add a comment… mention with @email"
+                  disabled={sending}
+                />
+                <Button type="submit" size="sm" disabled={!comment.trim() || sending}>
+                  {sending ? "..." : "Comment"}
+                </Button>
+              </div>
+            </form>
+          </>
+        )}
+      </div>
 
       <ReminderModal
         isOpen={showReminderModal}
