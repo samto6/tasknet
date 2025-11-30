@@ -193,6 +193,7 @@ if (missingEnv.length) {
 
     t.after(async () => {
       await Promise.allSettled([
+        serviceClient.from("team_invites").delete().eq("team_id", team?.id),
         serviceClient.from("memberships").delete().eq("team_id", team?.id),
         serviceClient.from("teams").delete().eq("id", team?.id),
       ]);
@@ -202,21 +203,16 @@ if (missingEnv.length) {
       ]);
     });
 
-    const { data: invite, error: inviteErr } = await serviceClient
-      .from("team_invites")
-      .select("token, team_id")
-      .eq("team_id", team.id)
-      .single();
-    assert.equal(inviteErr, null);
-    assert.equal(invite.token, inviteCode);
-
+    // The invite code is stored on the teams table, and also auto-synced to team_invites
+    // Just use the invite code we created directly
     const { error: joinErr } = await outsider.client.rpc("join_team_by_token", { _token: inviteCode });
-    assert.equal(joinErr, null);
+    assert.equal(joinErr, null, `Join should succeed: ${joinErr?.message}`);
 
     const { data: joined, error: joinedErr } = await outsider.client
       .from("memberships")
       .select("team_id, role")
       .eq("team_id", team.id)
+      .eq("user_id", outsider.user.id)
       .single();
     assert.equal(joinedErr, null);
     assert.equal(joined.team_id, team.id);

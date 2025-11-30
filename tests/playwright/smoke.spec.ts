@@ -50,6 +50,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 test("signup → create team → create project → add task", async ({ page }) => {
   const now = Date.now();
   const teamName = `Playwright Team ${now}`;
+  const projectName = `Playwright Project ${now}`;
+  const taskTitle = `Test Task ${now}`;
 
   await test.step("visit dashboard", async () => {
     await page.goto("/dashboard");
@@ -67,7 +69,6 @@ test("signup → create team → create project → add task", async ({ page }) 
     await page.getByRole("link", { name: "Create project from template" }).click();
     await expect(page).toHaveURL(/\/teams\/.*\/new-project/);
 
-    const projectName = `Playwright Project ${now}`;
     await page.getByPlaceholder("Project name").fill(projectName);
     const start = new Date();
     const iso = start.toISOString().slice(0, 10);
@@ -77,8 +78,75 @@ test("signup → create team → create project → add task", async ({ page }) 
     await expect(page.getByRole("heading", { name: "Tasks" })).toBeVisible();
   });
 
-  test.info().annotations.push({
-    type: "todo",
-    description: "Extend flow to add a task and comment once UI flow is available",
+  await test.step("create task", async () => {
+    // Fill in the new task form
+    await page.getByPlaceholder("Task title").fill(taskTitle);
+    await page.getByRole("button", { name: /Add Task/i }).click();
+    
+    // Wait for task to appear in the list
+    await expect(page.getByText(taskTitle)).toBeVisible({ timeout: 5000 });
+  });
+
+  await test.step("add comment to task", async () => {
+    // Expand comments section
+    await page.getByText(/Comments/i).first().click();
+    
+    // Add a comment
+    const commentText = `Test comment ${now}`;
+    await page.getByPlaceholder(/Add a comment/i).first().fill(commentText);
+    await page.getByRole("button", { name: "Comment" }).first().click();
+    
+    // Verify comment appears
+    await expect(page.getByText(commentText)).toBeVisible({ timeout: 5000 });
+  });
+
+  await test.step("mark task as done", async () => {
+    await page.getByRole("button", { name: /Done/i }).first().click();
+    
+    // Verify status changed
+    await expect(page.getByText("done")).toBeVisible({ timeout: 5000 });
+  });
+});
+
+test("wellness check-in flow", async ({ page }) => {
+  await test.step("visit wellness page", async () => {
+    await page.goto("/wellness");
+    await expect(page.getByRole("heading", { name: "Wellness" })).toBeVisible();
+  });
+
+  await test.step("submit mood check-in", async () => {
+    // Select a mood (click on mood 4 - "Good")
+    await page.getByText("😊").click();
+    
+    // Add optional note
+    await page.getByPlaceholder(/How are you feeling/i).fill("Feeling productive today!");
+    
+    // Submit
+    await page.getByRole("button", { name: /Check in/i }).click();
+    
+    // Verify success (page should show streak or success message)
+    await expect(page.getByText(/streak/i)).toBeVisible({ timeout: 5000 });
+  });
+});
+
+test("timeline views", async ({ page }) => {
+  await test.step("visit timeline page", async () => {
+    await page.goto("/timeline");
+    await expect(page.getByRole("heading", { name: "Timeline" })).toBeVisible();
+  });
+
+  await test.step("switch between views", async () => {
+    // Check calendar view is available
+    await page.getByRole("button", { name: /Calendar/i }).click();
+    await expect(page.locator('[data-testid="calendar-grid"]').or(page.getByText(/Sun|Mon|Tue/i).first())).toBeVisible();
+
+    // Check Gantt view is available  
+    await page.getByRole("button", { name: /Gantt/i }).click();
+    // Gantt should show some timeline element
+    await expect(page.locator('[data-testid="gantt-chart"]').or(page.getByText(/Week/i).first())).toBeVisible();
+
+    // Check Weekly view is available
+    await page.getByRole("button", { name: /Weekly/i }).click();
+    await expect(page.locator('[data-testid="weekly-breakdown"]').or(page.getByText(/hours|points/i).first())).toBeVisible();
   });
 });
