@@ -198,6 +198,7 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
           page={page}
           pageSize={pageSize}
           isAdmin={isAdmin}
+          teamMembers={teamMembers}
         />
       </Suspense>
     </main>

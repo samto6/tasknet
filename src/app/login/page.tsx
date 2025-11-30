@@ -22,10 +22,12 @@ export default function LoginPage() {
     setError("");
 
     const supabase = supabaseBrowser();
+    // Use current origin for local dev, allowing magic links to work on localhost
+    const redirectTo = `${window.location.origin}/auth/callback`;
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback`,
+        emailRedirectTo: redirectTo,
       },
     });
 

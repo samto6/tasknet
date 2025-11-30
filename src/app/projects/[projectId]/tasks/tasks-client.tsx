@@ -1,6 +1,6 @@
 "use client";
-import { useOptimistic, useState, useTransition } from "react";
-import { completeTask, assignSelf, unassignSelf } from "@/server-actions/tasks";
+import { useOptimistic, useState, useTransition, useEffect, useRef } from "react";
+import { completeTask, assignSelf, unassignSelf, assignUser } from "@/server-actions/tasks";
 import { addComment } from "@/server-actions/comments";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
@@ -15,13 +15,19 @@ type Task = {
   created_by: string;
 };
 
+type TeamMember = {
+  id: string;
+  name: string | null;
+  email: string | null;
+};
+
 const statusColors = {
   todo: { border: "warm-gray-300", badge: "default" },
   in_progress: { border: "sage-green", badge: "success" },
   done: { border: "mint-green", badge: "success" },
 };
 
-export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin }: { projectId: string; tasks: Task[]; page: number; pageSize: number; isAdmin: boolean; }) {
+export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin, teamMembers = [] }: { projectId: string; tasks: Task[]; page: number; pageSize: number; isAdmin: boolean; teamMembers?: TeamMember[]; }) {
   const [, startTransition] = useTransition();
   const [optimisticTasks, mutate] = useOptimistic(tasks, (prev, action: { id: string; type: "done" }) => {
     if (action.type === "done") {
@@ -47,7 +53,7 @@ export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin 
         </div>
       ) : (
         optimisticTasks.map((t) => (
-          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} projectId={projectId} isAdmin={isAdmin} />
+          <TaskRow key={t.id} task={t} onMarkDone={() => markDone(t.id)} projectId={projectId} isAdmin={isAdmin} teamMembers={teamMembers} />
         ))
       )}
 
@@ -70,11 +76,26 @@ export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin 
   );
 }
 
-function TaskRow({ task, onMarkDone, projectId, isAdmin }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; }) {
+function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; teamMembers: TeamMember[]; }) {
   const [comment, setComment] = useState("");
   const [sending, startTransition] = useTransition();
   const [mine, setMine] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
+  const [showAssignDropdown, setShowAssignDropdown] = useState(false);
+  const assignDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close assign dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (assignDropdownRef.current && !assignDropdownRef.current.contains(event.target as Node)) {
+        setShowAssignDropdown(false);
+      }
+    }
+    if (showAssignDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showAssignDropdown]);
 
   const due = task.due_at ? new Date(task.due_at) : null;
   const overdue = due && due.getTime() < Date.now() && task.status !== "done";
@@ -138,6 +159,49 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin }: { task: Task; onMarkD
             >
               Remind
             </Button>
+          )}
+          {isAdmin && teamMembers.length > 0 && (
+            <div className="relative" ref={assignDropdownRef}>
+              <Button
+                onClick={() => setShowAssignDropdown(!showAssignDropdown)}
+                size="sm"
+                variant="secondary"
+              >
+                Assign to ▾
+              </Button>
+              {showAssignDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-background border-2 border-border rounded-[6px] shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {/* Assign All button */}
+                  <button
+                    onClick={() => {
+                      startTransition(async () => {
+                        for (const member of teamMembers) {
+                          await assignUser(task.id, member.id);
+                        }
+                        setShowAssignDropdown(false);
+                      });
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm font-medium text-sage-green hover:bg-sage-green/10 transition-colors border-b-2 border-border"
+                  >
+                    ✓ Assign All ({teamMembers.length})
+                  </button>
+                  {teamMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        startTransition(async () => {
+                          await assignUser(task.id, member.id);
+                          setShowAssignDropdown(false);
+                        });
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-surface transition-colors border-b border-border last:border-b-0"
+                    >
+                      {member.name || member.email || "Unknown"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
           {!mine ? (
             <Button

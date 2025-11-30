@@ -65,19 +65,56 @@ export async function sendTaskReminderAction(
       // Check user preference
       const userPref = prefs?.find((p) => p.user_id === recipient.id);
       if (userPref?.email_due === false) {
+        // Still create in-app notification for skipped emails
+        await supabase.from("notifications").insert({
+          user_id: recipient.id,
+          kind: "manual_reminder",
+          payload_json: {
+            type: "task",
+            taskId: task.id,
+            title: task.title,
+            due_at: task.due_at,
+            projectId: task.project_id,
+            projectName: project.name,
+            senderName,
+            sentBy: user.id,
+          },
+        });
         return { skipped: true, userId: recipient.id };
       }
 
+      // Try to send email
       if (recipient.email) {
-        await sendTaskReminder(recipient.email, {
+        try {
+          await sendTaskReminder(recipient.email, {
+            taskId: task.id,
+            taskTitle: task.title,
+            dueAt: task.due_at,
+            projectId: task.project_id,
+            projectName: project.name,
+            senderName,
+          });
+        } catch (emailError) {
+          console.error(`Failed to send email to ${recipient.email}:`, emailError);
+          // Continue with notification even if email fails
+        }
+      }
+
+      // Create in-app notification
+      await supabase.from("notifications").insert({
+        user_id: recipient.id,
+        kind: "manual_reminder",
+        payload_json: {
+          type: "task",
           taskId: task.id,
-          taskTitle: task.title,
-          dueAt: task.due_at,
+          title: task.title,
+          due_at: task.due_at,
           projectId: task.project_id,
           projectName: project.name,
           senderName,
-        });
-      }
+          sentBy: user.id,
+        },
+      });
 
       // Log the reminder
       await supabase.from("reminder_logs").insert({
@@ -173,6 +210,22 @@ export async function sendMilestoneReminderAction(
           senderName,
         });
       }
+
+      // Create in-app notification
+      await supabase.from("notifications").insert({
+        user_id: recipient.id,
+        kind: "manual_reminder",
+        payload_json: {
+          type: "milestone",
+          milestoneId: milestone.id,
+          title: milestone.title,
+          due_at: milestone.due_at,
+          projectId: milestone.project_id,
+          projectName: project.name,
+          senderName,
+          sentBy: user.id,
+        },
+      });
 
       // Log the reminder
       await supabase.from("reminder_logs").insert({

@@ -4,15 +4,20 @@ import { Resend } from 'resend';
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromEmail = process.env.EMAIL_FROM || 'noreply@example.com';
 
-function getResend() {
+function getResend(): Resend | null {
   if (!resendApiKey) {
-    throw new Error('RESEND_API_KEY is not set');
+    console.warn('RESEND_API_KEY is not set - emails will not be sent');
+    return null;
   }
   return new Resend(resendApiKey);
 }
 
 export async function sendMention(to: string, payload: { taskId: string; body: string }) {
   const resend = getResend();
+  if (!resend) {
+    console.log(`[Email skipped] Mention notification to ${to} - RESEND_API_KEY not configured`);
+    return;
+  }
   await resend.emails.send({
     from: fromEmail,
     to,
@@ -33,12 +38,19 @@ export async function sendTaskReminder(
   }
 ) {
   const resend = getResend();
+  if (!resend) {
+    console.log(`[Email skipped] Task reminder to ${to} for "${payload.taskTitle}" - RESEND_API_KEY not configured`);
+    return;
+  }
+  
+  console.log(`[Email] Sending task reminder to ${to} for "${payload.taskTitle}" from ${fromEmail}`);
+  
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   const dueText = payload.dueAt
     ? `Due: ${new Date(payload.dueAt).toLocaleDateString()}`
     : 'No due date set';
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: fromEmail,
     to,
     subject: `Reminder: ${payload.taskTitle} - ${payload.projectName}`,
@@ -51,6 +63,8 @@ export async function sendTaskReminder(
       <p><a href="${siteUrl}/projects/${payload.projectId}/tasks">View task</a></p>
     `,
   });
+  
+  console.log(`[Email] Result:`, result);
 }
 
 export async function sendMilestoneReminder(
@@ -65,6 +79,10 @@ export async function sendMilestoneReminder(
   }
 ) {
   const resend = getResend();
+  if (!resend) {
+    console.log(`[Email skipped] Milestone reminder to ${to} for "${payload.milestoneTitle}" - RESEND_API_KEY not configured`);
+    return;
+  }
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   const dueText = payload.dueAt
     ? `Due: ${new Date(payload.dueAt).toLocaleDateString()}`

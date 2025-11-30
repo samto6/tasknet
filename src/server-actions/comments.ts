@@ -16,6 +16,22 @@ export async function addComment(taskId: string, body: string) {
     .insert({ task_id: taskId, user_id: user.id, body });
   if (error) throw error;
 
+  // Get task details for notification context
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("project_id, title")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  // Get commenter info
+  const { data: commenter } = await supabase
+    .from("users")
+    .select("name, email")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const commenterName = commenter?.name || commenter?.email?.split("@")[0] || "Someone";
+
   // mentions -> notifications + optional email
   const mentions = Array.from(body.matchAll(MENTION_RE)).map((m) => m[1]);
   if (mentions.length) {
@@ -28,7 +44,14 @@ export async function addComment(taskId: string, body: string) {
         await supabase.from("notifications").insert({
           user_id: u.id,
           kind: "mention",
-          payload_json: { taskId, body },
+          payload_json: {
+            taskId,
+            title: task?.title,
+            projectId: task?.project_id,
+            body,
+            mentionedBy: user.id,
+            mentionerName: commenterName,
+          },
         });
       }
       // email only if prefs allow

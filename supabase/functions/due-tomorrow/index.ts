@@ -57,9 +57,12 @@ Deno.serve(async () => {
       user_id: a.user_id,
       kind: "due_tomorrow",
       payload_json: {
+        type: "task",
         taskId: a.task.id,
         title: a.task.title,
         due_at: a.task.due_at,
+        projectId: a.task.project_id,
+        daysUntilDue: 1,
       },
     });
     if (email && ok && RESEND_API_KEY) {

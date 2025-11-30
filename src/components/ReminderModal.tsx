@@ -120,17 +120,27 @@ export default function ReminderModal({
           </p>
         </div>
 
-        <div className="p-4">
+        <div className="p-4 min-h-[280px]">
           {loading ? (
-            <div className="text-center py-4">Loading recipients...</div>
+            <div className="flex items-center justify-center h-[200px]">
+              <div className="text-center">
+                <div className="text-4xl mb-2">⏳</div>
+                <p className="text-muted">Loading recipients...</p>
+              </div>
+            </div>
           ) : result ? (
-            <div className="text-center py-4">
-              <p className="text-lg font-medium text-sage-green">
-                Sent {result.sent} of {result.total} reminders
-              </p>
-              <p className="text-sm text-muted mt-2">
-                Recipients with email notifications disabled were skipped.
-              </p>
+            <div className="flex items-center justify-center h-[200px]">
+              <div className="text-center">
+                <div className="text-5xl mb-4">✅</div>
+                <p className="text-xl font-semibold text-sage-green">
+                  Sent {result.sent} of {result.total} reminders
+                </p>
+                <p className="text-sm text-muted mt-3">
+                  {result.sent === result.total 
+                    ? "All recipients will receive notifications."
+                    : "Some recipients had email notifications disabled."}
+                </p>
+              </div>
             </div>
           ) : (
             <>

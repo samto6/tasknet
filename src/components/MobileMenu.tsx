@@ -118,6 +118,13 @@ export default function MobileMenu({ user }: MobileMenuProps) {
                 Wellness
               </Link>
               <Link
+                href="/notifications"
+                onClick={closeMenu}
+                className="px-4 py-3 text-base font-medium text-muted hover:text-foreground hover:bg-surface rounded-lg transition-all"
+              >
+                🔔 Notifications
+              </Link>
+              <Link
                 href="/settings"
                 onClick={closeMenu}
                 className="px-4 py-3 text-base font-medium text-muted hover:text-foreground hover:bg-surface rounded-lg transition-all"

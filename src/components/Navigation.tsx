@@ -2,6 +2,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import Link from "next/link";
 import Button from "./ui/Button";
 import MobileMenu from "./MobileMenu";
+import NotificationBell from "./NotificationBell";
 
 export default async function Navigation() {
   const supabase = await supabaseServer();
@@ -53,6 +54,9 @@ export default async function Navigation() {
                 >
                   Settings
                 </Link>
+
+                {/* Notification Bell */}
+                <NotificationBell />
 
                 {/* User Menu */}
                 <div className="flex items-center gap-3 pl-3 border-l-2 border-border">

@@ -113,6 +113,9 @@ export async function GET(request: Request) {
               taskId: task.id,
               title: task.title,
               due_at: task.due_at,
+              projectId: task.project_id,
+              projectName: project.name,
+              daysUntilDue: 1,
             },
           });
         } catch (error) {
@@ -172,6 +175,9 @@ export async function GET(request: Request) {
               milestoneId: milestone.id,
               title: milestone.title,
               due_at: milestone.due_at,
+              projectId: milestone.project_id,
+              projectName: project.name,
+              daysUntilDue: 1,
             },
           });
         } catch (error) {

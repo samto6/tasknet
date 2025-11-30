@@ -93,6 +93,63 @@ export async function unassignSelf(taskId: string) {
 }
 
 /**
+ * Assign another user to a task (creates a notification)
+ */
+export async function assignUser(taskId: string, assigneeId: string) {
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthenticated");
+
+  // Get task details for notification
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("id, title, project_id")
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (!task) throw new Error("Task not found");
+
+  // Assign the user
+  const { error } = await supabase
+    .from("task_assignees")
+    .upsert(
+      { task_id: taskId, user_id: assigneeId },
+      { onConflict: "task_id,user_id", ignoreDuplicates: true }
+    );
+  if (error) throw error;
+
+  // Only create notification if assigning someone else (not self)
+  if (assigneeId !== user.id) {
+    // Get assigner's name for the notification
+    const { data: assigner } = await supabase
+      .from("users")
+      .select("name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const assignerName = assigner?.name || assigner?.email?.split("@")[0] || "Someone";
+
+    // Create assignment notification
+    await supabase.from("notifications").insert({
+      user_id: assigneeId,
+      kind: "assignment",
+      payload_json: {
+        taskId: task.id,
+        title: task.title,
+        projectId: task.project_id,
+        assignerName,
+        assignedBy: user.id,
+      },
+    });
+  }
+
+  // Revalidate task lists
+  if (task.project_id) {
+    revalidatePath(`/projects/${task.project_id}/tasks`);
+  }
+}
+
+/**
  * Get tasks assigned to the current user
  * Optionally filter by status and due date
  */
