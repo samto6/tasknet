@@ -148,11 +148,12 @@ export async function completeTask(taskId: string) {
   ]);
   if (!user) throw new Error("Unauthenticated");
 
+  const completedAt = new Date().toISOString();
   const { data: task, error: tErr } = await supabase
     .from("tasks")
-    .update({ status: "done", updated_at: new Date().toISOString() })
+    .update({ status: "done", updated_at: completedAt })
     .eq("id", taskId)
-    .select("id, project_id, due_at, updated_at")
+    .select("id, project_id, due_at, milestone_id, updated_at")
     .single();
   if (tErr) throw tErr;
 
@@ -165,7 +166,12 @@ export async function completeTask(taskId: string) {
   await recordEventMaybeAward({
     kind: "task_completed",
     team_id: proj?.team_id ?? null,
-    payload: { taskId },
+    payload: { 
+      taskId,
+      dueAt: task?.due_at ?? null,
+      completedAt,
+      milestoneId: task?.milestone_id ?? null,
+    },
   });
 
   // Revalidate the project's tasks list page

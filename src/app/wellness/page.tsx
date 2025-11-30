@@ -110,6 +110,18 @@ async function Badges({ supabaseUserId }: { supabaseUserId: string | null }) {
           <div className="text-3xl mb-2">🏆</div>
           <div className="text-xs text-center font-medium">30-day streak</div>
         </div>
+        <div className={`flex flex-col items-center justify-center p-4 bg-background rounded-[6px] border-2 ${
+          kinds.has("on_time_10") ? "border-mustard-yellow" : "border-border opacity-50"
+        }`}>
+          <div className="text-3xl mb-2">⏰</div>
+          <div className="text-xs text-center font-medium">10 on time</div>
+        </div>
+        <div className={`flex flex-col items-center justify-center p-4 bg-background rounded-[6px] border-2 ${
+          kinds.has("milestone_maker") ? "border-mustard-yellow" : "border-border opacity-50"
+        }`}>
+          <div className="text-3xl mb-2">🎯</div>
+          <div className="text-xs text-center font-medium">Milestone maker</div>
+        </div>
       </div>
     </Card>
   );

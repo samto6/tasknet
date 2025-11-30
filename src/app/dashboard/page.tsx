@@ -29,6 +29,8 @@ export default async function DashboardPage() {
   const badgeKinds = badges.map((b) => b.kind);
   const has7DayStreak = badgeKinds.includes("streak_7");
   const has30DayStreak = badgeKinds.includes("streak_30");
+  const hasOnTime10 = badgeKinds.includes("on_time_10");
+  const hasMilestoneMaker = badgeKinds.includes("milestone_maker");
 
   return (
     <main className="min-h-screen p-6">
@@ -241,6 +243,32 @@ export default async function DashboardPage() {
                   30-day streak
                 </div>
                 {has30DayStreak && (
+                  <div className="text-[10px] text-muted mt-0.5">Unlocked!</div>
+                )}
+              </div>
+              <div className={`flex flex-col items-center justify-center p-3 bg-background rounded-[6px] border-2 ${
+                hasOnTime10
+                  ? "border-mustard-yellow bg-mustard-yellow/5"
+                  : "border-border opacity-50"
+              }`}>
+                <div className="text-2xl mb-1">⏰</div>
+                <div className={`text-xs text-center ${hasOnTime10 ? "text-mustard-yellow font-medium" : "text-muted"}`}>
+                  10 on time
+                </div>
+                {hasOnTime10 && (
+                  <div className="text-[10px] text-muted mt-0.5">Unlocked!</div>
+                )}
+              </div>
+              <div className={`flex flex-col items-center justify-center p-3 bg-background rounded-[6px] border-2 ${
+                hasMilestoneMaker
+                  ? "border-soft-lavender bg-soft-lavender/5"
+                  : "border-border opacity-50"
+              }`}>
+                <div className="text-2xl mb-1">🎯</div>
+                <div className={`text-xs text-center ${hasMilestoneMaker ? "text-soft-lavender font-medium" : "text-muted"}`}>
+                  Milestone maker
+                </div>
+                {hasMilestoneMaker && (
                   <div className="text-[10px] text-muted mt-0.5">Unlocked!</div>
                 )}
               </div>

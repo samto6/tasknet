@@ -98,7 +98,72 @@ export async function recordEventMaybeAward(args: {
         );
     }
   }
-  // on_time_10 and milestone_maker are awarded elsewhere (e.g., after batch checks)
+
+  // on_time_10 badge: Award when user completes 10 tasks before their due date
+  if (args.kind === "task_completed" && args.payload) {
+    const payload = args.payload as { taskId?: string; dueAt?: string | null; completedAt?: string; milestoneId?: string | null };
+    
+    // Check if this task was completed on time
+    if (payload.dueAt && payload.completedAt) {
+      const dueDate = new Date(payload.dueAt);
+      const completedDate = new Date(payload.completedAt);
+      
+      if (completedDate <= dueDate) {
+        // Count on-time completions from events
+        const { data: onTimeEvents } = await supabase
+          .from("events")
+          .select("payload_json")
+          .eq("user_id", user.id)
+          .eq("kind", "task_completed");
+        
+        let onTimeCount = 0;
+        if (onTimeEvents) {
+          for (const event of onTimeEvents) {
+            const p = event.payload_json as { dueAt?: string; completedAt?: string } | null;
+            if (p?.dueAt && p?.completedAt) {
+              const due = new Date(p.dueAt);
+              const completed = new Date(p.completedAt);
+              if (completed <= due) onTimeCount++;
+            }
+          }
+        }
+        
+        if (onTimeCount >= 10) {
+          await supabase
+            .from("rewards")
+            .upsert(
+              { user_id: user.id, kind: "on_time_10" },
+              { onConflict: "user_id,kind", ignoreDuplicates: true }
+            );
+        }
+      }
+    }
+    
+    // milestone_maker badge: Award when a milestone is completed
+    if (payload.milestoneId) {
+      // Check if all tasks in this milestone are now done
+      const { count: totalTasks } = await supabase
+        .from("tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("milestone_id", payload.milestoneId);
+      
+      const { count: completedTasks } = await supabase
+        .from("tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("milestone_id", payload.milestoneId)
+        .eq("status", "done");
+      
+      if (totalTasks && totalTasks > 0 && completedTasks === totalTasks) {
+        // Award milestone_maker badge to the user who completed the final task
+        await supabase
+          .from("rewards")
+          .upsert(
+            { user_id: user.id, kind: "milestone_maker" },
+            { onConflict: "user_id,kind", ignoreDuplicates: true }
+          );
+      }
+    }
+  }
 }
 
 /**
