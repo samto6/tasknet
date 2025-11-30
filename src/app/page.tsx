@@ -1,18 +1,13 @@
-"use client";
-import { useEffect } from "react";
-import { sanitizeSupabaseStorage } from "@/lib/supabase/cleanup";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
-import { useRouter } from "next/navigation";
+import StorageCleanup from "@/components/StorageCleanup";
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    sanitizeSupabaseStorage();
-  }, []);
-
   return (
     <div className="min-h-screen">
+      {/* Client component for storage cleanup */}
+      <StorageCleanup />
+
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden px-6 py-20">
         {/* Floating Shapes Background */}
@@ -31,13 +26,14 @@ export default function Home() {
             <p className="text-xl md:text-2xl text-muted max-w-2xl mx-auto mb-8">
               Plan semester-long projects with confidence. Timeline tracking, task management, and team wellness -- this is a task management platform built by students, for students.
             </p>
-            <Button
-              size="lg"
-              onClick={() => router.push('/signup')}
-              className="text-lg px-8 py-4"
-            >
-              Get Started
-            </Button>
+            <Link href="/signup">
+              <Button
+                size="lg"
+                className="text-lg px-8 py-4"
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Bento Grid Features */}

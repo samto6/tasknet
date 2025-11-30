@@ -1,8 +1,7 @@
 import { getCurrentUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import Button from "./ui/Button";
-import MobileMenu from "./MobileMenu";
-import NotificationBell from "./NotificationBell";
+import { ClientNotificationBell, ClientMobileMenu } from "./ClientNavItems";
 
 export default async function Navigation() {
   const user = await getCurrentUser();
@@ -54,8 +53,8 @@ export default async function Navigation() {
                   Settings
                 </Link>
 
-                {/* Notification Bell */}
-                <NotificationBell />
+                {/* Notification Bell - Loaded lazily */}
+                <ClientNotificationBell />
 
                 {/* User Menu */}
                 <div className="flex items-center gap-3 pl-3 border-l-2 border-border">
@@ -73,8 +72,8 @@ export default async function Navigation() {
                 </div>
               </div>
 
-              {/* Mobile Menu */}
-              <MobileMenu user={user} />
+              {/* Mobile Menu - Loaded lazily */}
+              <ClientMobileMenu user={user} />
             </>
           ) : (
             <div className="flex items-center gap-4">
