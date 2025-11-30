@@ -100,13 +100,14 @@ export async function getComments(taskId: string) {
 
   if (error) throw error;
 
-  return (comments || []).map((c) => ({
-    id: c.id as string,
-    body: c.body as string,
-    createdAt: c.created_at as string,
-    userId: c.user_id as string,
-    authorName: (c.users as { name: string | null; email: string | null } | null)?.name 
-      || (c.users as { name: string | null; email: string | null } | null)?.email?.split("@")[0] 
-      || "Unknown",
-  }));
+  return (comments || []).map((c) => {
+    const userInfo = c.users as unknown as { name: string | null; email: string | null } | null;
+    return {
+      id: c.id as string,
+      body: c.body as string,
+      createdAt: c.created_at as string,
+      userId: c.user_id as string,
+      authorName: userInfo?.name || userInfo?.email?.split("@")[0] || "Unknown",
+    };
+  });
 }
