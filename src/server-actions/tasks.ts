@@ -16,6 +16,81 @@ const TaskSchema = z.object({
 
 export type TaskInput = z.infer<typeof TaskSchema>;
 
+const TaskUpdateSchema = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().optional().nullable(),
+  due_at: z.string().optional().nullable(), // Allow any string format, we'll handle conversion
+  size: z.number().int().optional().nullable(),
+  milestone_id: z.string().uuid().optional().nullable(),
+  status: z.enum(["open", "in_progress", "done"]).optional(),
+});
+
+export type TaskUpdateInput = z.infer<typeof TaskUpdateSchema>;
+
+/**
+ * Update an existing task
+ */
+export async function updateTask(taskId: string, input: TaskUpdateInput) {
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
+  if (!user) throw new Error("Unauthenticated");
+
+  // Get the task to find its project_id for revalidation
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("id, project_id")
+    .eq("id", taskId)
+    .single();
+
+  if (fetchError || !existingTask) throw new Error("Task not found");
+
+  // Build update object, only including non-undefined fields
+  const updateData: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (input.title !== undefined) updateData.title = input.title;
+  if (input.description !== undefined) updateData.description = input.description;
+  if (input.due_at !== undefined) updateData.due_at = input.due_at;
+  if (input.size !== undefined) updateData.size = input.size;
+  if (input.milestone_id !== undefined) updateData.milestone_id = input.milestone_id;
+  if (input.status !== undefined) updateData.status = input.status;
+
+  const { error } = await supabase
+    .from("tasks")
+    .update(updateData)
+    .eq("id", taskId);
+
+  if (error) throw error;
+
+  // Revalidate the project's tasks list page
+  revalidatePath(`/projects/${existingTask.project_id}/tasks`);
+  
+  return { success: true };
+}
+
+/**
+ * Get a single task by ID
+ */
+export async function getTask(taskId: string) {
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
+  if (!user) throw new Error("Unauthenticated");
+
+  const { data: task, error } = await supabase
+    .from("tasks")
+    .select("id, title, description, status, due_at, size, milestone_id, project_id, created_by")
+    .eq("id", taskId)
+    .single();
+
+  if (error) throw error;
+  return task;
+}
+
 export async function createTask(input: TaskInput) {
   const [supabase, user] = await Promise.all([
     supabaseServer(),

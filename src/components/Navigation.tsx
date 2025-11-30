@@ -29,6 +29,12 @@ export default async function Navigation() {
                   Dashboard
                 </Link>
                 <Link
+                  href="/tasks"
+                  className="text-sm font-medium text-muted hover:text-foreground transition-colors"
+                >
+                  Tasks
+                </Link>
+                <Link
                   href="/teams"
                   className="text-sm font-medium text-muted hover:text-foreground transition-colors"
                 >

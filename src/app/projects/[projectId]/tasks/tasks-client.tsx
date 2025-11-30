@@ -1,5 +1,6 @@
 "use client";
 import { useOptimistic, useState, useTransition, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { completeTask, assignSelf, unassignSelf, assignUser } from "@/server-actions/tasks";
 import { addComment } from "@/server-actions/comments";
 import Button from "@/components/ui/Button";
@@ -77,6 +78,7 @@ export default function TasksClient({ projectId, tasks, page, pageSize, isAdmin,
 }
 
 function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: Task; onMarkDone: () => void; projectId: string; isAdmin: boolean; teamMembers: TeamMember[]; }) {
+  const router = useRouter();
   const [comment, setComment] = useState("");
   const [sending, startTransition] = useTransition();
   const [mine, setMine] = useState(false);
@@ -151,6 +153,13 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
               ✓ Done
             </Button>
           )}
+          <Button
+            onClick={() => router.push(`/projects/${projectId}/tasks/${task.id}/edit`)}
+            size="sm"
+            variant="secondary"
+          >
+            ✎ Edit
+          </Button>
           {isAdmin && (
             <Button
               onClick={() => setShowReminderModal(true)}

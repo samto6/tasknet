@@ -90,10 +90,18 @@ export async function createMilestone(formData: FormData) {
   const { error } = await supabase.from("milestones").insert({
     project_id: projectId,
     title,
-    due_at: dueAt ? new Date(dueAt as string).toISOString() : null,
+    due_at: dueAt ? parseDateToISO(dueAt as string) : null,
   });
 
   if (error) throw error;
+}
+
+// Helper to parse date string (YYYY-MM-DD) to ISO without timezone issues
+function parseDateToISO(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  // Create date at noon UTC to avoid day boundary issues
+  const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  return date.toISOString();
 }
 
 /**
@@ -140,7 +148,7 @@ export async function updateMilestone(
     updateData.title = z.string().min(1).max(200).parse(updates.title);
   }
   if (updates.dueAt !== undefined) {
-    updateData.due_at = updates.dueAt ? new Date(updates.dueAt).toISOString() : null;
+    updateData.due_at = updates.dueAt ? parseDateToISO(updates.dueAt) : null;
   }
   if (updates.status !== undefined) {
     updateData.status = z.enum(["open", "done"]).parse(updates.status);

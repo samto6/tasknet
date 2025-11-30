@@ -97,6 +97,13 @@ export default function MobileMenu({ user }: MobileMenuProps) {
                 Dashboard
               </Link>
               <Link
+                href="/tasks"
+                onClick={closeMenu}
+                className="px-4 py-3 text-base font-medium text-muted hover:text-foreground hover:bg-surface rounded-lg transition-all"
+              >
+                Tasks
+              </Link>
+              <Link
                 href="/teams"
                 onClick={closeMenu}
                 className="px-4 py-3 text-base font-medium text-muted hover:text-foreground hover:bg-surface rounded-lg transition-all"
