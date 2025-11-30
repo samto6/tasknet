@@ -17,8 +17,8 @@ import {
   type Notification,
 } from "@/lib/notifications";
 
-// Poll interval for checking new notifications (30 seconds)
-const POLL_INTERVAL = 30000;
+// Poll interval for checking new notifications (60 seconds)
+const POLL_INTERVAL = 60000;
 
 export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState<number>(0);

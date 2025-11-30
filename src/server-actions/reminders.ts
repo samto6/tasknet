@@ -1,6 +1,6 @@
 "use server";
 
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { sendTaskReminder, sendMilestoneReminder } from "@/lib/email";
 
 /**
@@ -10,10 +10,10 @@ export async function sendTaskReminderAction(
   taskId: string,
   recipientIds: string[]
 ) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get task with project info
@@ -142,10 +142,10 @@ export async function sendMilestoneReminderAction(
   milestoneId: string,
   recipientIds: string[]
 ) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get milestone with project info
@@ -250,10 +250,10 @@ export async function sendMilestoneReminderAction(
  * Get task assignees for recipient selection
  */
 export async function getTaskAssignees(taskId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { data: assignees } = await supabase
@@ -271,10 +271,10 @@ export async function getTaskAssignees(taskId: string) {
  * Get project members for recipient selection
  */
 export async function getProjectMembers(projectId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get team_id from project
@@ -302,10 +302,10 @@ export async function getProjectMembers(projectId: string) {
  * Get upcoming tasks and milestones for bulk reminder
  */
 export async function getUpcomingItems(projectId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const now = new Date();
@@ -342,10 +342,10 @@ export async function getUpcomingItems(projectId: string) {
  * Check if user is admin for a project
  */
 export async function isProjectAdmin(projectId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) return false;
 
   const { data: project } = await supabase

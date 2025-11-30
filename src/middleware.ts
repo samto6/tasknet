@@ -44,15 +44,16 @@ export async function middleware(req: NextRequest) {
     }
   );
 
+  // Use getSession() instead of getUser() - it reads from cookies locally
+  // which is much faster. getUser() makes a network request to Supabase.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
   const protectedPaths = [/^\/dashboard/, /^\/teams/, /^\/projects/, /^\/wellness/, /^\/notifications/, /^\/settings/, /^\/timeline/];
   const isProtected = protectedPaths.some((re) => re.test(pathname));
 
-  if (isProtected && !user) {
-    console.log("[Middleware] No user found for protected path:", pathname);
+  if (isProtected && !session) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
 
@@ -63,10 +64,6 @@ export async function middleware(req: NextRequest) {
     });
 
     return redirectResponse;
-  }
-
-  if (user) {
-    console.log("[Middleware] User authenticated:", user.email);
   }
 
   return response;

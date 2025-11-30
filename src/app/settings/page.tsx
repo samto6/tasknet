@@ -5,6 +5,9 @@ import EmailPreferencesForm from "./EmailPreferencesForm";
 import Badge from "@/components/ui/Badge";
 import { formatDistanceToNow } from "date-fns";
 
+// User-specific page - must be dynamic
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const settings = await getUserSettings();
   const stats = await getUserStats();

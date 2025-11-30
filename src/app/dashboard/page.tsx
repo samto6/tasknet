@@ -7,6 +7,9 @@ import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
+// User-specific page - must be dynamic
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   async function createTeamAndGo(form: FormData) {
     "use server";

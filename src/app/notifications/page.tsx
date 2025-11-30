@@ -2,6 +2,9 @@ import { getNotifications } from "@/server-actions/notifications";
 import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import NotificationList from "./NotificationList";
 
+// User-specific page - must be dynamic
+export const dynamic = "force-dynamic";
+
 export default async function NotificationsPage() {
   const notifications = await getNotifications(50, 0);
 

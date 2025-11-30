@@ -1,5 +1,5 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 
 type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
@@ -8,10 +8,10 @@ export async function recordEventMaybeAward(args: {
   team_id?: string | null;
   payload?: Json;
 }) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
   await supabase
     .from("events")
@@ -105,10 +105,10 @@ export async function recordEventMaybeAward(args: {
  * Get the current user's streak information
  */
 export async function getUserStreak() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { data: streak } = await supabase
@@ -132,10 +132,10 @@ export async function getUserStreak() {
  * Get the current user's unlocked badges
  */
 export async function getUserBadges() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { data: badges } = await supabase

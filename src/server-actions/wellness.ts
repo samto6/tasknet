@@ -1,12 +1,12 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { recordEventMaybeAward } from "./gamification";
 
 export async function checkIn(mood: 1 | 2 | 3 | 4 | 5, note?: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // once per day enforced by unique index

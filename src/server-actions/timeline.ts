@@ -1,5 +1,5 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 
 export type TimelineTask = {
   id: string;
@@ -34,10 +34,10 @@ export type TimelineData = {
  * Get timeline data for a specific project
  */
 export async function getProjectTimeline(projectId: string): Promise<TimelineData> {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Verify user has access to this project
@@ -131,10 +131,10 @@ export async function getProjectTimeline(projectId: string): Promise<TimelineDat
  * Get timeline data for all tasks assigned to the current user
  */
 export async function getPersonalTimeline(): Promise<TimelineData> {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get task IDs assigned to user

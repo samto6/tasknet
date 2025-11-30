@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { getProjectMilestones } from "@/server-actions/milestones";
 import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import MilestoneRow from "./MilestoneRow";
@@ -35,9 +35,7 @@ export default async function MilestonesPage({
   }
 
   // Get current user's role
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
   const { data: membership } = await supabase
     .from("memberships")
     .select("role")

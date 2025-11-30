@@ -1,14 +1,14 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { sendMention } from "@/lib/email";
 
 const MENTION_RE = /@([\w.\-+]+@[\w.\-]+\.\w+)/g; // @email
 
 export async function addComment(taskId: string, body: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase

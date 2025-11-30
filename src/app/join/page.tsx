@@ -1,5 +1,5 @@
 import { joinTeamByCode } from "@/server-actions/teams";
-import { supabaseServer } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -20,8 +20,7 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
   }
 
   // Check if user is authenticated
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     // Redirect to login - user will need to use invite link again after logging in

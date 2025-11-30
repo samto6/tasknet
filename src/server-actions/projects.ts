@@ -1,5 +1,5 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { SEMESTER_16 } from "@/lib/templates";
 
 export async function createProjectFromTemplate(args: {
@@ -7,10 +7,10 @@ export async function createProjectFromTemplate(args: {
   name: string;
   semester_start_date: string; // ISO date (yyyy-mm-dd)
 }) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Insert project

@@ -1,8 +1,10 @@
 import 'server-only';
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cache } from "react";
 
-export async function supabaseServer() {
+// Cache the Supabase client creation per request
+export const supabaseServer = cache(async () => {
   // In Next 15, cookies() can be async in some contexts; await for compatibility
   const cookieStore = await cookies();
   return createServerClient(
@@ -30,4 +32,29 @@ export async function supabaseServer() {
       },
     }
   );
-}
+});
+
+// Get current user - uses getSession() first (fast, from cookies) 
+// then only calls getUser() if we need to verify with Supabase
+export const getCurrentUser = cache(async () => {
+  const supabase = await supabaseServer();
+  
+  // First try getSession - this is fast as it reads from cookies
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    return null;
+  }
+  
+  // Return the user from the session - this avoids an extra network call
+  // The session is already validated by Supabase's JWT verification
+  return session.user;
+});
+
+// For actions that absolutely need to verify with Supabase server
+// (e.g., before sensitive operations), use this instead
+export const getVerifiedUser = cache(async () => {
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+});

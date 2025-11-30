@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import TasksClient from "./tasks-client";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -29,7 +29,10 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
   const pageParam = toSingleValue(rawSearch.page);
   const parsedPage = Number(pageParam ?? "1");
   const page = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1;
-  const supabase = await supabaseServer();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   const pageSize = 50;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -39,8 +42,6 @@ export default async function ProjectTasksPage({ params, searchParams }: { param
     .select("id,title,status,due_at,description,created_by,milestone_id")
     .eq("project_id", projectId)
     .order("due_at", { ascending: true, nullsFirst: true });
-
-  const { data: { user } } = await supabase.auth.getUser();
 
   // Advanced filters
   const filterValue = toSingleValue(rawSearch.filter);

@@ -1,10 +1,15 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import CheckInForm from "./CheckInForm";
 
+// User-specific page - must be dynamic
+export const dynamic = "force-dynamic";
+
 export default async function WellnessPage() {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   let currentDays = 0;
   let longestDays = 0;
   if (user) {

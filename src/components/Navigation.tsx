@@ -1,12 +1,11 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import Button from "./ui/Button";
 import MobileMenu from "./MobileMenu";
 import NotificationBell from "./NotificationBell";
 
 export default async function Navigation() {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   return (
     <nav className="sticky top-0 z-50 bg-background border-b-2 border-border">

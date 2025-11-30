@@ -1,5 +1,5 @@
 "use server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { z } from "zod";
 import { recordEventMaybeAward } from "@/server-actions/gamification";
 import { revalidatePath } from "next/cache";
@@ -17,10 +17,10 @@ const TaskSchema = z.object({
 export type TaskInput = z.infer<typeof TaskSchema>;
 
 export async function createTask(input: TaskInput) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
   const { error, data } = await supabase
     .from("tasks")
@@ -34,10 +34,10 @@ export async function createTask(input: TaskInput) {
 }
 
 export async function completeTask(taskId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { data: task, error: tErr } = await supabase
@@ -65,8 +65,10 @@ export async function completeTask(taskId: string) {
 }
 
 export async function assignSelf(taskId: string) {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
   const { error } = await supabase
     .from("task_assignees")
@@ -80,8 +82,10 @@ export async function assignSelf(taskId: string) {
 }
 
 export async function unassignSelf(taskId: string) {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
   const { error } = await supabase
     .from("task_assignees")
@@ -96,8 +100,10 @@ export async function unassignSelf(taskId: string) {
  * Assign another user to a task (creates a notification)
  */
 export async function assignUser(taskId: string, assigneeId: string) {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get task details for notification
@@ -158,10 +164,10 @@ export async function getMyTasks(options?: {
   limit?: number;
   dueSoon?: boolean; // if true, only return tasks due within next 7 days
 }) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get task IDs assigned to user
@@ -210,10 +216,10 @@ export async function getMyTasks(options?: {
  * Get user statistics for dashboard
  */
 export async function getUserStats() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get task IDs assigned to user

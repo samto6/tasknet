@@ -1,16 +1,16 @@
 "use server";
 
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { z } from "zod";
 
 /**
  * Get all milestones for a project with task statistics
  */
 export async function getProjectMilestones(projectId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get all milestones
@@ -61,10 +61,10 @@ export async function createMilestone(formData: FormData) {
   const projectId = z.string().uuid().parse(formData.get("projectId"));
   const dueAt = formData.get("dueAt");
 
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Verify user is admin of the team
@@ -107,10 +107,10 @@ export async function updateMilestone(
     status?: "open" | "done";
   }
 ) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get milestone and verify permissions
@@ -158,10 +158,10 @@ export async function updateMilestone(
  * Delete a milestone (admin only)
  */
 export async function deleteMilestone(milestoneId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get milestone and verify permissions

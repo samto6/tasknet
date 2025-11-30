@@ -1,21 +1,15 @@
 "use server";
 import { randomUUID } from "crypto";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { z } from "zod";
 
 export async function createTeam(form: FormData) {
   const name = z.string().min(2).parse(form.get("name"));
-  const supabase = await supabaseServer();
-  const {
-    data: { session },
-    error: sessionErr,
-  } = await supabase.auth.getSession();
-  if (!session) throw new Error(sessionErr?.message ?? "No active session");
-  const {
-    data: { user },
-    error: auErr,
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error(auErr?.message ?? "Unauthenticated");
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
+  if (!user) throw new Error("Unauthenticated");
 
   // ensure the profile row exists before inserting the team so the trigger can add the membership without FK issues
   const { error: profileErr } = await supabase
@@ -49,10 +43,10 @@ export async function createTeam(form: FormData) {
 }
 
 export async function joinTeamByCode(code: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Ensure the profile row exists before joining (memberships references users)
@@ -84,10 +78,10 @@ export async function joinTeamByCode(code: string) {
  * Get all members of a team with their roles and activity stats
  */
 export async function getTeamMembers(teamId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Verify user is a team member
@@ -176,10 +170,10 @@ export async function getTeamMembers(teamId: string) {
  * Remove a member from a team (admin only)
  */
 export async function removeMemberFromTeam(teamId: string, userId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Verify current user is an admin
@@ -226,10 +220,10 @@ export async function updateMemberRole(
   const roleSchema = z.enum(["admin", "member"]);
   const validatedRole = roleSchema.parse(newRole);
 
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Verify current user is an admin

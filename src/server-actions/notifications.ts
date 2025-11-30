@@ -1,15 +1,15 @@
 "use server";
 
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 
 /**
  * Get unread notification count for the current user
  */
 export async function getUnreadCount() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { count } = await supabase
@@ -25,10 +25,10 @@ export async function getUnreadCount() {
  * Get paginated notifications for the current user
  */
 export async function getNotifications(limit = 50, offset = 0) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { data: notifications, error } = await supabase
@@ -47,10 +47,10 @@ export async function getNotifications(limit = 50, offset = 0) {
  * Mark a single notification as read
  */
 export async function markAsRead(notificationId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase
@@ -66,10 +66,10 @@ export async function markAsRead(notificationId: string) {
  * Mark all notifications as read for the current user
  */
 export async function markAllAsRead() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase
@@ -85,10 +85,10 @@ export async function markAllAsRead() {
  * Delete a notification
  */
 export async function deleteNotification(notificationId: string) {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase
@@ -104,10 +104,10 @@ export async function deleteNotification(notificationId: string) {
  * Delete all read notifications for the current user
  */
 export async function deleteAllRead() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase

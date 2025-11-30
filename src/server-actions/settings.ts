@@ -1,16 +1,16 @@
 "use server";
 
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { z } from "zod";
 
 /**
  * Get user profile and preferences
  */
 export async function getUserSettings() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get user profile
@@ -53,10 +53,10 @@ export async function getUserSettings() {
 export async function updateUserProfile(formData: FormData) {
   const name = z.string().min(1).max(100).parse(formData.get("name"));
 
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   const { error } = await supabase
@@ -75,10 +75,10 @@ export async function updateEmailPreferences(formData: FormData) {
   const emailDue = formData.get("emailDue") === "true";
   const emailDigest = formData.get("emailDigest") === "true";
 
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Upsert preferences
@@ -101,10 +101,10 @@ export async function updateEmailPreferences(formData: FormData) {
  * Get user statistics
  */
 export async function getUserStats() {
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
   if (!user) throw new Error("Unauthenticated");
 
   // Get team count

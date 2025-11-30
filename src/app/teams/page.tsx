@@ -1,5 +1,5 @@
 import { createTeam, joinTeamByCode } from "@/server-actions/teams";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -7,6 +7,9 @@ import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 
 import { redirect } from "next/navigation";
+
+// User-specific page - must be dynamic
+export const dynamic = "force-dynamic";
 
 export default async function TeamsPage() {
   async function createTeamAction(form: FormData) {
@@ -23,10 +26,10 @@ export default async function TeamsPage() {
   }
 
   // Fetch user's teams
-  const supabase = await supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
 
   let teams: Array<{
     id: string;

@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, getCurrentUser } from "@/lib/supabase/server";
 import { getTeamMembers } from "@/server-actions/teams";
 import Card, { CardTitle, CardDescription } from "@/components/ui/Card";
 import MemberRow from "./MemberRow";
@@ -11,7 +11,10 @@ export default async function TeamMembersPage({
   params: Promise<{ teamId: string }>;
 }) {
   const { teamId } = await params;
-  const supabase = await supabaseServer();
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
 
   // Get team info
   const { data: team } = await supabase
@@ -21,9 +24,6 @@ export default async function TeamMembersPage({
     .maybeSingle();
 
   // Get current user's role
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const { data: currentMembership } = await supabase
     .from("memberships")
     .select("role")
