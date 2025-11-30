@@ -91,6 +91,39 @@ export async function getTask(taskId: string) {
   return task;
 }
 
+/**
+ * Delete a task (only admin or task creator can delete)
+ */
+export async function deleteTask(taskId: string) {
+  const [supabase, user] = await Promise.all([
+    supabaseServer(),
+    getCurrentUser(),
+  ]);
+  if (!user) throw new Error("Unauthenticated");
+
+  // Get the task to find its project_id for revalidation
+  const { data: existingTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("id, project_id")
+    .eq("id", taskId)
+    .single();
+
+  if (fetchError || !existingTask) throw new Error("Task not found");
+
+  // RLS policy handles authorization (admin or creator can delete)
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", taskId);
+
+  if (error) throw error;
+
+  // Revalidate the project's tasks list page
+  revalidatePath(`/projects/${existingTask.project_id}/tasks`);
+  
+  return { success: true };
+}
+
 export async function createTask(input: TaskInput) {
   const [supabase, user] = await Promise.all([
     supabaseServer(),

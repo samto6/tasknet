@@ -1,11 +1,12 @@
 "use client";
 import { useOptimistic, useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { completeTask, assignSelf, unassignSelf, assignUser } from "@/server-actions/tasks";
+import { completeTask, assignSelf, unassignSelf, assignUser, deleteTask } from "@/server-actions/tasks";
 import { addComment } from "@/server-actions/comments";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import ReminderModal from "@/components/ReminderModal";
+import Card, { CardTitle } from "@/components/ui/Card";
 
 type Task = {
   id: string;
@@ -84,6 +85,8 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
   const [mine, setMine] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const assignDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close assign dropdown when clicking outside
@@ -239,6 +242,14 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
               Unassign
             </Button>
           )}
+          <Button
+            onClick={() => setShowDeleteConfirm(true)}
+            size="sm"
+            variant="ghost"
+            className="text-dusty-rose hover:bg-dusty-rose/10"
+          >
+            🗑
+          </Button>
         </div>
       </div>
 
@@ -277,6 +288,52 @@ function TaskRow({ task, onMarkDone, projectId, isAdmin, teamMembers }: { task: 
         entityTitle={task.title}
         projectId={projectId}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-md">
+              <CardTitle className="mb-4 text-dusty-rose">Delete Task</CardTitle>
+              <p className="text-muted mb-2">
+                Are you sure you want to delete this task?
+              </p>
+              <p className="font-medium mb-6">&ldquo;{task.title}&rdquo;</p>
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  className="bg-dusty-rose hover:bg-dusty-rose/90"
+                  disabled={deleting}
+                  onClick={async () => {
+                    setDeleting(true);
+                    try {
+                      await deleteTask(task.id);
+                      setShowDeleteConfirm(false);
+                      router.refresh();
+                    } catch (err) {
+                      console.error("Failed to delete task:", err);
+                      setDeleting(false);
+                    }
+                  }}
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 }
