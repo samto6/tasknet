@@ -51,7 +51,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">
             <span className="text-sage-green">Task</span>
-            <span className="text-foreground">Nest</span>
+            <span className="text-foreground">Net</span>
           </h1>
           <p className="text-muted">Tidy teamwork in one place</p>
         </div>

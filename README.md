@@ -1,7 +1,5 @@
 # TaskNet User Guide
 
----
-
 ## Table of Contents
 
 1. [Introduction](#introduction)
@@ -75,7 +73,7 @@ TaskNet is a web application that works in any modern browser:
 1. Navigate to the TaskNet homepage
 2. Click the **"Get Started"** button
 3. Enter your **name** and **email address**
-4. Click **"Create Account"**
+4. Click **"Sign Up"**
 5. Check your email for a **magic link**
 6. Click the link in your email to complete registration
 
@@ -85,7 +83,7 @@ TaskNet is a web application that works in any modern browser:
 
 1. Navigate to the **Sign In** page (`/login`)
 2. Enter your **email address**
-3. Click **"Send Magic Link"**
+3. Click **"Send magic link"**
 4. Check your email and click the magic link
 5. You'll be automatically signed in and redirected to your dashboard
 
@@ -104,7 +102,7 @@ The **Dashboard** is your home base in TaskNet. Here's what you'll find:
 Access common features quickly:
 - **My Tasks** – View all tasks assigned to you
 - **View Teams** – See and manage your teams
-- **Wellness Check-in** – Log your daily mood
+- **Daily Check-in** – Log your daily mood
 - **View Timeline** – Access your personal timeline
 
 ### Upcoming Tasks
@@ -134,7 +132,7 @@ As the team creator, you automatically become the team **admin**.
 To join an existing team, you'll need an **invite code** from a team admin:
 
 1. Navigate to **Teams** from the navigation menu
-2. Find the **"Join a Team"** card
+2. Find the **"Join by Invite Code"** card
 3. Enter the **invite code** provided by your teammate
 4. Click **"Join Team"**
 
@@ -160,9 +158,9 @@ Projects help you organize work within a team. Each project can have its own tas
 ### Creating a Project
 
 1. Navigate to your **Team** page
-2. Find the **"Create Project"** section
-3. Enter a **Project Name**
-4. Click **"Create Project"**
+2. Click **"Create Project from Template"** in the Quick Actions section
+3. Enter a **Project Name** and set a **Semester Start Date**
+4. Click **"Create Project from Template"**
 
 ### Project Settings
 
@@ -180,23 +178,23 @@ Tasks are the core of TaskNet. They represent individual work items that need to
 ### Creating Tasks
 
 1. Navigate to a **Project's Tasks** page
-2. Click **"New Task"** or the **"+"** button
+2. Click the **"Create Task"** button
 3. Fill in the task details:
    - **Title** (required) – Brief description of the task
    - **Description** (optional) – Detailed information
    - **Due Date** (optional) – When the task should be completed
    - **Milestone** (optional) – Associate with a project milestone
-   - **Assignees** – Team members responsible for the task
+   - **Size/Effort** (optional) – Estimate the effort required (1-10)
 4. Click **"Create Task"**
 
 ### Assigning Tasks
 
-Tasks can be assigned to one or more team members:
+Tasks can be assigned to one or more team members after creation:
 
-1. Open a task
-2. Click on the **Assignees** field
+1. Find the task in the task list
+2. Click the **"Assign to"** dropdown (admin only)
 3. Select team members from the dropdown
-4. Changes save automatically
+4. Assignees are updated immediately
 
 ### Task Statuses
 
@@ -209,19 +207,18 @@ Tasks progress through three statuses:
 | **Done** | Completed | Green badge |
 
 To change a task's status:
-1. Open the task
-2. Click on the status dropdown
-3. Select the new status
+1. Click the **"✓ Done"** button on the task to quickly mark it complete, or
+2. Click **"✎ Edit"** to open the task editor and change the status dropdown
 
 ### Filtering and Searching Tasks
 
 The Tasks page provides powerful filtering options:
 
 #### Quick Filters
-- **My Tasks** – Show only tasks assigned to you
-- **Due This Week** – Tasks due in the next 7 days
+- **Assigned to Me** – Show only tasks assigned to you
+- **This Week** – Tasks due in the next 7 days
 - **Overdue** – Tasks past their due date
-- **All** – Show all tasks
+- **All Tasks** – Show all tasks
 
 #### Advanced Filters
 - **Assignee** – Filter by specific team member
@@ -233,10 +230,10 @@ The Tasks page provides powerful filtering options:
 Communicate with your team directly on tasks:
 
 1. Open a task
-2. Scroll to the **Comments** section
+2. Click on **Comments** to expand the section
 3. Type your comment
-4. Use **@username** to mention and notify a teammate
-5. Click **"Post"**
+4. Use **@email** (e.g., `@teammate@email.com`) to mention and notify a teammate
+5. Click **"Comment"**
 
 Mentioned users will receive a notification.
 
@@ -250,8 +247,8 @@ Milestones help you break down large projects into manageable phases with clear 
 
 1. Navigate to a project's **Milestones** page
 2. Fill in the milestone form:
-   - **Title** – Name of the milestone (e.g., "Phase 1: Research")
-   - **Due Date** – Target completion date
+   - **Title** – Name of the milestone (e.g., "Project Proposal")
+   - **Due Date** (optional) – Target completion date
 3. Click **"Create Milestone"**
 
 ### Tracking Progress
@@ -279,10 +276,10 @@ A traditional monthly calendar showing tasks on their due dates:
 
 ### Gantt Chart View
 
-A horizontal timeline showing task duration and dependencies:
+A horizontal timeline showing task duration:
 
-- Drag to adjust task dates (admin only)
-- View task overlap and scheduling conflicts
+- View all tasks and milestones on a timeline
+- See task overlap and scheduling
 - Best for understanding project flow
 
 > **Note**: Gantt view automatically switches to Weekly view on mobile devices.
@@ -308,9 +305,9 @@ TaskNet includes wellness features to help maintain healthy work habits and team
 Record how you're feeling each day:
 
 1. Navigate to **Wellness** from the menu
-2. Select your current mood from the emoji options
+2. Select your current mood from the mood options (1-5 scale)
 3. Optionally add a private note
-4. Click **"Check In"**
+4. Click **"Complete Check-in"**
 
 Your check-ins are **private** – only you can see your detailed history.
 
@@ -328,18 +325,18 @@ Checking in daily maintains your streak. Miss a day and it resets to zero.
 Earn badges for accomplishments:
 
 | Badge | Requirement |
-|-------|-------------|
-| **7-Day Streak** | Check in 7 consecutive days |
-| **30-Day Streak** | Check in 30 consecutive days |
-| **On-Time Champion** | Complete 10 tasks on time |
-| **Milestone Maker** | Complete your first milestone |
+|-------|--------------|
+| **7-day streak** | Check in 7 consecutive days |
+| **30-day streak** | Check in 30 consecutive days |
+| **10 on time** | Complete 10 tasks before their due date |
+| **Milestone maker** | Complete all tasks in a milestone |
 
 ### Team Pulse
 
-View your team's overall wellness (anonymized):
+View wellness insights:
 
-- Aggregate mood data (happy, neutral, stressed percentages)
-- Helps identify when team might need support
+- Your average mood over the last 14 days (rated out of 5)
+- Team-wide aggregate data coming soon
 - **Individual mood data is never shared**
 
 ---
@@ -358,7 +355,7 @@ Access notifications via the **bell icon** in the navigation bar:
   - Task assignments
   - @mentions in comments
   - Approaching deadlines
-  - Team invites
+  - Manual reminders from admins
 
 Click on a notification to navigate to the related item.
 
@@ -374,14 +371,14 @@ Configure email preferences in **Settings**:
 
 ### Setting Reminders
 
-Create custom reminders for tasks:
+Send reminders to assignees or team members:
 
-1. Open a task
-2. Click the **"Set Reminder"** button (bell icon)
-3. Choose when to be reminded
-4. Confirm the reminder
+1. Open a task or milestone
+2. Click the **"Remind"** button (admin only)
+3. Choose recipients: assignees, all team members, or custom selection
+4. Click **"Send Reminder"** to notify them via email
 
-You can also set bulk reminders for multiple tasks at once using the **Bulk Reminder** feature.
+You can also send bulk reminders for multiple tasks at once using the **Bulk Reminder** feature on the project tasks page.
 
 ---
 
@@ -403,18 +400,17 @@ Control which emails you receive:
 1. Navigate to **Settings**
 2. Find the **"Email Notifications"** section
 3. Toggle each preference on/off:
-   - Mentions notifications
-   - Due date reminders
-   - Weekly digest
-
-Changes save automatically.
+   - Mention Notifications
+   - Due Task Reminders
+   - Weekly Digest
+4. Click **"Save Preferences"**
 
 ### Account Information
 
 View your account details:
 - Email address
 - User ID
-- Account statistics (teams, tasks, streaks)
+- Account statistics (teams, tasks completed, streaks, check-ins)
 
 ---
 
@@ -543,7 +539,7 @@ A: Yes, you can change a task's status back to "Open" or "In Progress."
 ### Wellness
 
 **Q: Who can see my wellness check-ins?**
-A: Only you can see your individual check-ins. Team Pulse shows only aggregate, anonymized data.
+A: Only you can see your individual check-ins. Team Pulse currently shows your personal average, with team-wide aggregates coming soon.
 
 **Q: What happens if I miss a check-in?**
 A: Your streak resets to zero, but your longest streak record is preserved.
@@ -565,5 +561,3 @@ If you encounter issues not covered in this guide:
 ---
 
 *Last updated: December 2025*
-
-*TaskNet – Plan semester-long projects with confidence* 🎓
