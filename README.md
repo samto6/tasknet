@@ -198,13 +198,7 @@ Tasks can be assigned to one or more team members after creation:
 
 ### Task Statuses
 
-Tasks progress through three statuses:
-
-| Status | Description | Visual |
-|--------|-------------|--------|
-| **Open** | Not yet started | Default badge |
-| **In Progress** | Currently being worked on | Purple/lavender badge |
-| **Done** | Completed | Green badge |
+Tasks progress through three statuses: **Open**, **In Progress**, and **Done**.
 
 To change a task's status:
 1. Click the **"✓ Done"** button on the task to quickly mark it complete, or
@@ -309,7 +303,7 @@ Record how you're feeling each day:
 3. Optionally add a private note
 4. Click **"Complete Check-in"**
 
-Your check-ins are **private** – only you can see your detailed history.
+Your check-ins are **private** -- only you can see your detailed history.
 
 ### Streak Tracking
 
@@ -442,7 +436,7 @@ When you go offline, an **"Offline"** indicator appears. Your actions will sync 
 
 1. Check your **spam/junk** folder
 2. Verify you entered the correct email address
-3. Wait a few minutes – emails can be delayed
+3. Wait a few minutes, as emails can be delayed
 4. Try requesting a new magic link
 5. Check if your email provider blocks automated emails
 
@@ -475,19 +469,6 @@ When you go offline, an **"Offline"** indicator appears. Your actions will sync 
 3. Refresh the page
 4. Clear browser cache
 
-### Browser Cache Issues
-
-If TaskNet behaves unexpectedly:
-
-1. Open browser developer tools (F12 or Cmd+Option+I)
-2. Right-click the refresh button
-3. Select "Empty Cache and Hard Reload"
-
-Or clear your browser data:
-- **Chrome**: Settings → Privacy → Clear browsing data
-- **Firefox**: Settings → Privacy & Security → Clear Data
-- **Safari**: Develop → Empty Caches
-
 ---
 
 ## FAQ
@@ -506,7 +487,7 @@ A: Yes, TaskNet is fully responsive and works on mobile devices.
 ### Account
 
 **Q: Why don't I have a password?**
-A: TaskNet uses passwordless authentication via magic links. This is more secure and convenient – no passwords to remember or steal.
+A: TaskNet uses passwordless authentication via magic links. This is more secure and convenient, as there are no passwords to remember or steal.
 
 **Q: Can I change my email address?**
 A: Currently, email addresses cannot be changed. Contact support if you need assistance.
