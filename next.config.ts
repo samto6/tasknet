@@ -26,15 +26,8 @@ const config: NextConfig = withBundleAnalyzer({
   compress: true,
   // Optimize packages
   transpilePackages: ["@supabase/ssr"],
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Suppress warnings about Node.js APIs in Edge Runtime for Supabase
-      config.ignoreWarnings = [
-        { module: /node_modules\/@supabase\/realtime-js/ },
-      ];
-    }
-    return config;
-  },
+  // Enable Turbopack (default in Next.js 16)
+  turbopack: {},
 });
 
 export default config;
