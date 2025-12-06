@@ -53,6 +53,23 @@ export async function middleware(req: NextRequest) {
   const protectedPaths = [/^\/dashboard/, /^\/teams/, /^\/projects/, /^\/wellness/, /^\/notifications/, /^\/settings/, /^\/timeline/];
   const isProtected = protectedPaths.some((re) => re.test(pathname));
 
+  // Auth pages that logged-in users should be redirected away from
+  const authPaths = ["/login", "/signup"];
+  const isAuthPage = authPaths.includes(pathname);
+
+  // Redirect authenticated users away from auth pages to dashboard
+  if (isAuthPage && session) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/dashboard";
+
+    const redirectResponse = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+
+    return redirectResponse;
+  }
+
   if (isProtected && !session) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
@@ -78,5 +95,7 @@ export const config = {
     "/notifications/:path*",
     "/settings/:path*",
     "/timeline/:path*",
+    "/login",
+    "/signup",
   ],
 };
